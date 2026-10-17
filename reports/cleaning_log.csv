@@ -1,0 +1,37 @@
+dataset,issue,measure,affected_rows,action_taken,reason,before_count,after_count,verification_status
+customers,"Duplicate customer_id","excess duplicate rows",0,"Keep one most-complete row per ID","One customer row per customer_id prevents duplicate entities.",0,0,PASS
+customers,"Missing optional customer attributes",rows,0,"Normalize blanks to NULL; retain missing attributes","Do not infer customer values that are absent.",0,0,EXPECTED_RETAINED
+customers,"Missing required customer_id",rows,0,"Exclude rows without customer_id from customers_clean","A stable customer_id is required to identify a customer.",0,0,PASS
+customers,"Total source versus clean rows","table rows",0,"Create customers_clean; preserve customers_stage","Any row reduction should equal missing-key rows plus duplicate excess.",99441,99441,PASS
+items,"Duplicate order_id and order_item_id","excess duplicate rows",0,"Keep one most-complete row per key","The composite key identifies one order line.",0,0,PASS
+items,"Items with unknown order",rows,1,"Flag and retain; do not delete the item","Verify the missing order reference in the source data.",1,1,REVIEW_REQUIRED
+items,"Items with unknown product",rows,1,"Flag and retain; do not guess product details","Verify the missing product reference in the source data.",1,1,REVIEW_REQUIRED
+items,"Missing composite order-item key",rows,0,"Exclude rows missing order_id or order_item_id","Both columns are required to identify an order item.",0,0,PASS
+items,"Missing non-key fields",rows,0,"Normalize blanks to NULL; retain missing values","Do not infer product, seller, shipping date, or amount values.",0,0,EXPECTED_RETAINED
+items,"Negative freight values",rows,0,"Set negative freight to NULL","Negative freight is invalid; zero freight can be legitimate.",0,0,PASS
+items,"Negative item prices",rows,0,"Set negative prices to NULL","Negative prices are invalid; zero prices are retained.",0,0,PASS
+items,"Total source versus clean rows","table rows",0,"Create items_clean; preserve items_stage","Any row reduction should equal missing-key rows plus duplicate excess.",112649,112649,PASS
+items,"Zero freight values retained",rows,383,"Retain zero freight values unchanged","Zero freight can be a valid business value.",383,383,PASS
+orders,"Carrier timestamp before purchase",rows,166,"Flag and retain; do not change timestamps","Timezone or source timestamp problems need investigation.",166,166,REVIEW_REQUIRED
+orders,"Duplicate order_id","excess duplicate rows",0,"Keep one most-complete row per ID","One row per order_id prevents double-counting orders.",0,0,PASS
+orders,"Missing non-key fields",rows,0,"Normalize blanks to NULL; retain missing values","Missing dates or status cannot be safely reconstructed.",0,0,EXPECTED_RETAINED
+orders,"Missing required order_id",rows,0,"Exclude rows without order_id from orders_clean","A stable order_id is required to identify an order.",0,0,PASS
+orders,"Orders with unknown customer",rows,0,"Flag and retain; do not guess a customer ID","A missing customer reference needs source investigation.",0,0,PASS
+orders,"Total source versus clean rows","table rows",0,"Create orders_clean; preserve orders_stage","Any row reduction should equal missing-key rows plus duplicate excess.",99440,99440,PASS
+products,"Duplicate product_id","excess duplicate rows",0,"Keep one most-complete row per product","One row per product_id prevents duplicate products.",0,0,PASS
+products,"Missing dimensions","field values",8,"Retain missing dimensions as NULL","Missing weight or dimensions cannot be safely inferred.",8,12,EXPECTED_RETAINED
+products,"Missing or blank categories",rows,610,"Normalize blanks to NULL; retain unknown categories","A missing product category cannot be safely inferred.",610,610,EXPECTED_RETAINED
+products,"Missing required product_id",rows,0,"Exclude rows without product_id from products_clean","A stable product ID is required to identify a product.",0,0,PASS
+products,"Nonpositive dimensions","field values",4,"Set nonpositive dimensions to NULL","Supplied weights and dimensions must be positive.",4,0,PASS
+products,"Total source versus clean rows","table rows",0,"Create products_clean; preserve products_stage","Any row reduction should equal missing-key rows plus duplicate excess.",32950,32950,PASS
+reviews,"Duplicate review_id","excess duplicate rows",814,"Keep one most-complete row per review_id","Duplicate review IDs inflate review counts.",814,0,PASS
+reviews,"Invalid scores outside 1-5",rows,0,"Set invalid scores to NULL","Only scores 1 through 5 are valid; no replacement is inferred.",0,0,PASS
+reviews,"Missing non-key review fields",rows,0,"Normalize blanks to NULL; retain review rows","No missing score, order, or date is inferred.",0,0,EXPECTED_RETAINED
+reviews,"Missing optional comment message",rows,58255,"Normalize blank messages to NULL; retain reviews","Review messages are optional and should not be fabricated.",58255,57750,EXPECTED_RETAINED
+reviews,"Missing optional comment title",rows,87657,"Normalize blank titles to NULL; retain reviews","Review titles are optional and should not be fabricated.",87657,86892,EXPECTED_RETAINED
+reviews,"Missing required review_id",rows,0,"Exclude rows without review_id from reviews_clean","review_id is required to identify and deduplicate a review.",0,0,PASS
+reviews,"Total source versus clean rows","table rows",814,"Create reviews_clean; preserve reviews_stage","Row reduction should equal missing review IDs plus duplicate excess.",99223,98409,PASS
+translations,"Duplicate source category keys","excess duplicate rows",0,"Keep one translation per source category","A source category should map to at most one clean translation.",0,0,PASS
+translations,"Missing English category label",rows,0,"Normalize blank labels to NULL; retain known source keys","Do not guess an English translation.",0,0,EXPECTED_RETAINED
+translations,"Missing source category key",rows,0,"Exclude rows without a source category key","A translation cannot be joined without its source category.",0,0,PASS
+translations,"Total source versus clean rows","table rows",0,"Create translation_clean; preserve translation_stage","Any row reduction should equal missing keys plus duplicate excess.",71,71,PASS
