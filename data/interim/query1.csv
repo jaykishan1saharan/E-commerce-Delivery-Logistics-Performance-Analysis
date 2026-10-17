@@ -1,0 +1,7 @@
+table_name,total_rows
+customers_stage,99441
+orders_stage,99440
+items_stage,112649
+reviews_stage,99223
+products_stage,32950
+translation_stage,71
