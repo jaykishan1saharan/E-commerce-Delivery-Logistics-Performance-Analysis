@@ -2,7 +2,8 @@
 import sqlite3
 from pathlib import Path
 
-db_path = Path(__file__).resolve().parent / "delivery_analysis.db"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+db_path = PROJECT_ROOT / "delivery_analysis.db"
 
 queries = {
     "1. Order Volume by Status": """

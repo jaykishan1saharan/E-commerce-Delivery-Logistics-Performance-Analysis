@@ -4,11 +4,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-BASE = Path(__file__).resolve().parent
-REPORTS = BASE / "reports" / "member4"
-REPORTS.mkdir(parents=True, exist_ok=True)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+REPORTS = PROJECT_ROOT / "reports"
+TABLES = REPORTS / "tables"
+FIGURES = REPORTS / "figures"
+TABLES.mkdir(parents=True, exist_ok=True)
+FIGURES.mkdir(parents=True, exist_ok=True)
 
-with sqlite3.connect(BASE / "delivery_analysis.db") as conn:
+with sqlite3.connect(PROJECT_ROOT / "delivery_analysis.db") as conn:
     # 1. Order status summary
     status = pd.read_sql_query("""
         SELECT order_status, COUNT(*) AS total_orders
@@ -16,7 +19,7 @@ with sqlite3.connect(BASE / "delivery_analysis.db") as conn:
         GROUP BY order_status
         ORDER BY total_orders DESC
     """, conn)
-    status.to_csv(REPORTS / "order_status_summary.csv", index=False)
+    status.to_csv(TABLES / "order_status_summary.csv", index=False)
 
     # 2. Delivery duration details
     delivery = pd.read_sql_query("""
@@ -36,7 +39,7 @@ with sqlite3.connect(BASE / "delivery_analysis.db") as conn:
           AND order_purchase_timestamp IS NOT NULL
           AND order_delivered_customer_date IS NOT NULL
     """, conn)
-    delivery.to_csv(REPORTS / "delivery_duration_details.csv", index=False)
+    delivery.to_csv(TABLES / "delivery_duration_details.csv", index=False)
 
     # 3. Cancellation summary
     cancellation = pd.read_sql_query("""
@@ -45,7 +48,7 @@ with sqlite3.connect(BASE / "delivery_analysis.db") as conn:
         WHERE order_status IN ('canceled', 'delivered')
         GROUP BY order_status
     """, conn)
-    cancellation.to_csv(REPORTS / "cancellation_summary.csv", index=False)
+    cancellation.to_csv(TABLES / "cancellation_summary.csv", index=False)
 
     # 4. Review score distribution
     reviews = pd.read_sql_query("""
@@ -55,7 +58,7 @@ with sqlite3.connect(BASE / "delivery_analysis.db") as conn:
         GROUP BY review_score
         ORDER BY review_score
     """, conn)
-    reviews.to_csv(REPORTS / "review_score_distribution.csv", index=False)
+    reviews.to_csv(TABLES / "review_score_distribution.csv", index=False)
 
 # Chart 1: Order status
 plt.figure(figsize=(9, 5))
@@ -65,7 +68,7 @@ plt.xlabel("Order Status")
 plt.ylabel("Number of Orders")
 plt.xticks(rotation=35)
 plt.tight_layout()
-plt.savefig(REPORTS / "order_volume_by_status.png", dpi=150)
+plt.savefig(FIGURES / "order_volume_by_status.png", dpi=150)
 plt.close()
 
 # Chart 2: Delivery duration
@@ -75,7 +78,7 @@ plt.title("Distribution of Delivery Duration")
 plt.xlabel("Delivery Duration (Days)")
 plt.ylabel("Number of Orders")
 plt.tight_layout()
-plt.savefig(REPORTS / "delivery_duration_distribution.png", dpi=150)
+plt.savefig(FIGURES / "delivery_duration_distribution.png", dpi=150)
 plt.close()
 
 # Chart 3: Cancellations
@@ -85,7 +88,7 @@ plt.title("Delivered vs Cancelled Orders")
 plt.xlabel("Order Status")
 plt.ylabel("Number of Orders")
 plt.tight_layout()
-plt.savefig(REPORTS / "cancellation_comparison.png", dpi=150)
+plt.savefig(FIGURES / "cancellation_comparison.png", dpi=150)
 plt.close()
 
 # Chart 4: Review scores
@@ -95,10 +98,11 @@ plt.title("Customer Review Score Distribution")
 plt.xlabel("Review Score")
 plt.ylabel("Number of Reviews")
 plt.tight_layout()
-plt.savefig(REPORTS / "review_score_distribution.png", dpi=150)
+plt.savefig(FIGURES / "review_score_distribution.png", dpi=150)
 plt.close()
 
 print("Member 4 results exported successfully!")
-print("Files saved in:", REPORTS)
+print("CSV tables saved in:", TABLES)
+print("Charts saved in:", FIGURES)
 print("CSV reports: 4")
 print("Charts: 4")
