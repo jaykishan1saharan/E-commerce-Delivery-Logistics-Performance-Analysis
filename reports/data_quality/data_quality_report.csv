@@ -1,0 +1,24 @@
+﻿category,table_or_relationship,check_name,result,status,notes
+ROW_COUNT,customers_stage,total_rows,99441,PASS,Matches expected source row count.
+ROW_COUNT,items_stage,total_rows,112650,PASS,Matches expected source row count.
+ROW_COUNT,orders_stage,total_rows,99441,PASS,Matches expected source row count.
+ROW_COUNT,reviews_stage,total_rows,99224,PASS,Matches expected source row count.
+ROW_COUNT,products_stage,total_rows,32951,PASS,Matches expected source row count.
+ROW_COUNT,translation_stage,total_rows,71,PASS,Matches expected source row count.
+REFERENTIAL_INTEGRITY,orders_stage -> customers_stage,orders_with_unknown_customer,0,PASS,No unmatched customer references found.
+REFERENTIAL_INTEGRITY,items_stage -> orders_stage,items_with_unknown_order,0,PASS,No unmatched order references found.
+REFERENTIAL_INTEGRITY,items_stage -> products_stage,items_with_unknown_product,0,PASS,No unmatched product references found.
+PRODUCT_QUALITY,products_stage,blank_product_category,610,REVIEW,Blank categories should be documented; do not delete or impute without team approval.
+PRODUCT_DIMENSIONS,products_stage,null_or_nonpositive_length,2,REVIEW,Includes NULL or non-positive values; inspect before any treatment.
+PRODUCT_DIMENSIONS,products_stage,null_or_nonpositive_height,2,REVIEW,Includes NULL or non-positive values; inspect before any treatment.
+PRODUCT_DIMENSIONS,products_stage,null_or_nonpositive_width,2,REVIEW,Includes NULL or non-positive values; inspect before any treatment.
+PRODUCT_DIMENSIONS,products_stage,null_or_nonpositive_weight,6,REVIEW,Includes NULL or non-positive values; inspect before any treatment.
+PRODUCT_DIMENSIONS,products_stage,negative_length,0,PASS,No negative length values found.
+PRODUCT_DIMENSIONS,products_stage,negative_height,0,PASS,No negative height values found.
+PRODUCT_DIMENSIONS,products_stage,negative_width,0,PASS,No negative width values found.
+PRODUCT_DIMENSIONS,products_stage,negative_weight,0,PASS,No negative weight values found.
+REVIEWS,reviews_stage,blank_comment_title,87658,INFO,Review title is often optional; not automatically a data-quality defect.
+REVIEWS,reviews_stage,blank_comment_message,58256,INFO,Review message is often optional; not automatically a data-quality defect.
+REVIEWS,reviews_stage,invalid_review_scores,0,PASS,All checked review scores are within 1–5.
+TRANSLATION,translation_stage,source/English category fields,0 missing or blank,PASS,Corrected query using the actual BOM-prefixed source column returned zero missing/blank values.
+DATA_INTEGRITY,all staging tables,record modifications/deletions,0,PASS,Audit is read-only; no source records were modified or deleted.

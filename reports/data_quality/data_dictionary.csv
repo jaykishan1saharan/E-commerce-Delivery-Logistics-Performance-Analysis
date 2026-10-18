@@ -1,0 +1,39 @@
+table_name,column_name,data_type,description,missing_values_allowed,cleaning_notes
+customers_stage,customer_id,CHAR(32),Unique identifier for a customer record,YES,Check for NULL blank and duplicate IDs
+customers_stage,customer_unique_id,CHAR(32),Identifier linking records for the same customer,YES,Check for NULL and review repeated values
+customers_stage,customer_zip_code_prefix,CHAR(5),Customer postal code prefix,YES,Check for NULL and preserve leading zeros
+customers_stage,customer_city,VARCHAR(100),Customer city name,YES,Check for NULL or blank values
+customers_stage,customer_state,CHAR(2),Customer state abbreviation,YES,Check for NULL or blank values and validate expected codes
+items_stage,order_id,CHAR(32),Identifier of the order containing this item,YES,Check for NULL blank values and references to orders_stage
+items_stage,order_item_id,INT,Item sequence number within its order,YES,Check for NULL and duplicate order_id plus order_item_id pairs
+items_stage,product_id,CHAR(32),Identifier of the purchased product,YES,Check for NULL blank values and references to products_stage
+items_stage,seller_id,CHAR(32),Identifier of the seller fulfilling the item,YES,Check for NULL or blank values
+items_stage,shipping_limit_date,DATETIME,Latest date and time for the seller to hand the item to the carrier,YES,Check for NULL and valid timestamp values
+items_stage,price,"DECIMAL(10,2)",Item price in the source currency,YES,Check for NULL and negative values; zero values require review
+items_stage,freight_value,"DECIMAL(10,2)",Shipping charge for the item in the source currency,YES,Check for NULL and negative values; zero values require review
+orders_stage,order_id,CHAR(32),Unique identifier for an order,YES,Check for NULL blank and duplicate IDs
+orders_stage,customer_id,CHAR(32),Identifier of the customer who placed the order,YES,Check for NULL blank values and references to customers_stage
+orders_stage,order_status,VARCHAR(30),Current or final order status,YES,Check for NULL blank values and unexpected status values
+orders_stage,order_purchase_timestamp,DATETIME,Date and time the order was placed,YES,Check for NULL and timestamp chronology
+orders_stage,order_approved_at,DATETIME,Date and time payment approval was recorded,YES,Check NULLs in context of order status and timestamp chronology
+orders_stage,order_delivered_carrier_date,DATETIME,Date and time the order was handed to the carrier,YES,Check NULLs in context of order status and timestamp chronology
+orders_stage,order_delivered_customer_date,DATETIME,Date and time the order was delivered to the customer,YES,Check NULLs in context of order status and timestamp chronology
+orders_stage,order_estimated_delivery_date,DATETIME,Estimated delivery date for the order,YES,Check for NULL and timestamp chronology
+products_stage,product_id,CHAR(32),Unique identifier for a product,YES,Check for NULL blank and duplicate IDs
+products_stage,product_category_name,VARCHAR(100),Product category name in the source language,YES,Audit found 610 blank category values; review before remediation
+products_stage,product_name_lenght,INT,Length of the product name as recorded in the source,YES,Check for NULL and implausible values; source column spelling is retained
+products_stage,product_description_lenght,INT,Length of the product description as recorded in the source,YES,Check for NULL and implausible values; source column spelling is retained
+products_stage,product_photos_qty,INT,Number of product photos,YES,Check for NULL and negative values
+products_stage,product_weight_g,INT,Product weight in grams,YES,Audit found 6 NULL or non-positive values and 0 negative values
+products_stage,product_length_cm,INT,Product length in centimeters,YES,Audit found 2 NULL or non-positive values and 0 negative values
+products_stage,product_height_cm,INT,Product height in centimeters,YES,Audit found 2 NULL or non-positive values and 0 negative values
+products_stage,product_width_cm,INT,Product width in centimeters,YES,Audit found 2 NULL or non-positive values and 0 negative values
+reviews_stage,review_id,CHAR(32),Identifier for a review record,YES,Check for NULL blank and duplicate IDs
+reviews_stage,order_id,CHAR(32),Identifier of the reviewed order,YES,Check for NULL blank values and references to orders_stage
+reviews_stage,review_score,INT,Customer review score from 1 to 5,YES,Audit found 0 scores outside the 1 to 5 range; check for NULL
+reviews_stage,review_comment_title,TEXT,Optional title of the review,YES,Audit found 87658 blank or NULL titles; blank review text may be optional
+reviews_stage,review_comment_message,TEXT,Optional text of the review,YES,Audit found 58256 blank or NULL messages; blank review text may be optional
+reviews_stage,review_creation_date,DATETIME,Date and time the review was created,YES,Check for NULL and valid timestamp values
+reviews_stage,review_answer_timestamp,DATETIME,Date and time the review was answered,YES,Check NULLs in context and validate timestamp chronology
+translation_stage,product_category_name,VARCHAR(100),Product category name in the source language,YES,Check for NULL blank and duplicate source categories
+translation_stage,product_category_name_english,VARCHAR(100),English translation of the product category,YES,Check for NULL blank and duplicate translations
