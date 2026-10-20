@@ -2,7 +2,7 @@ Week 2 — KPI Definitions and Analytical Data Contract
 Project: E-commerce Delivery & Logistics Performance Analysis
 Phase: Week 2, Day 1
 Owner: Member 3 — KPI Specification
-Status: Business definitions finalized; pending team approval and technical verification
+Status: Draft for team review; technical verification pending
 1. Purpose
 This document defines the business meaning, formulas, eligible populations, source fields, missing-data rules, and validation requirements for the project's analytical KPIs.
 
@@ -20,13 +20,13 @@ The project uses six source datasets:
 4. Order reviews
 5. Products
 6. Product-category name translations
-The current SQL clean-view implementation defines the following views:
-- customers_clean
-- orders_clean
-- items_clean
-- reviews_clean
-- products_clean
-- translation_clean
+   The current SQL clean-view implementation defines the following views:
+   - customers_clean
+   - orders_clean
+   - items_clean
+   - reviews_clean
+   - products_clean
+   - translation_clean
 2.3 Join requirements
 - Orders are the primary source for order status and delivery timestamps.
 - Customer data supplies customer geography.
@@ -52,11 +52,11 @@ Eligibility rules:
 - The actual delivery date must be present and valid.
 - The estimated delivery date must be present and valid.
 - The order identifier must be valid and unique in the analytical dataset.
-Exclusions and exceptions:
+  Exclusions and exceptions:
 - Undelivered orders are excluded.
 - Orders with missing actual or estimated delivery dates are excluded from the rate denominator and reported separately.
 - Invalid or duplicate order records must be resolved or explicitly documented.
-Validation rule: Eligible on-time orders plus eligible late orders must equal the eligible delivered-order denominator.
+  Validation rule: Eligible on-time orders plus eligible late orders must equal the eligible delivered-order denominator.
 KPI 2 — Late-Delivery Rate
 Business question: What percentage of eligible delivered orders arrived after the estimated delivery date?
 
@@ -73,7 +73,7 @@ Classification rules:
 - Actual date equal to estimated date: on time or early.
 - Actual date after estimated date: late.
 - Missing actual or estimated date: unknown for delivery-timeliness classification.
-Validation rule: On-time and late delivery rates should sum to 100%, subject to ordinary rounding, because both use the same eligible population. Unknown and excluded records must be reported separately.
+  Validation rule: On-time and late delivery rates should sum to 100%, subject to ordinary rounding, because both use the same eligible population. Unknown and excluded records must be reported separately.
 KPI 3 — Average Delivery Duration
 Business question: How long does it take for an order to travel from purchase to actual customer delivery?
 
@@ -86,16 +86,16 @@ Average Delivery Duration (days) = Sum of Eligible Delivery Durations in Days / 
 Source columns:
 - Purchase timestamp: orders_clean.order_purchase_timestamp
 - Actual customer delivery timestamp: orders_clean.order_delivered_customer_date
-Eligible population:
+  Eligible population:
 - Delivered orders with valid purchase and actual customer delivery timestamps.
 - Each unique order is counted once.
-Rules:
+  Rules:
 - Calculate elapsed time from timestamps, not merely the difference between calendar dates.
 - Convert results to days consistently.
 - Missing timestamps must not be silently replaced with zero.
 - Negative intervals must be flagged as invalid.
 - Extreme positive durations must be investigated and documented rather than automatically deleted.
-Required outputs:
+  Required outputs:
 - Average delivery duration.
 - Number of eligible orders.
 - Number of missing or invalid timestamp records.
@@ -131,12 +131,12 @@ Purchase-to-Carrier Timestamp Duration = order_delivered_carrier_date − order_
 Source columns:
 - Purchase timestamp: orders_clean.order_purchase_timestamp
 - Carrier-related timestamp: orders_clean.order_delivered_carrier_date
-Eligibility rules:
+  Eligibility rules:
 - Both timestamps must be present and valid.
 - The carrier-related timestamp must not precede the purchase timestamp.
 - The order must be counted once.
 - Missing and invalid intervals must be reported separately.
-Interpretation and limitation: This measures the recorded elapsed time between purchase and the carrier-related timestamp. It is not a direct measurement of warehouse processing time and does not, by itself, prove the exact physical carrier-handoff event. Confirm the operational meaning of order_delivered_carrier_date before interpreting this KPI as a direct carrier-handoff measurement.
+  Interpretation and limitation: This measures the recorded elapsed time between purchase and the carrier-related timestamp. It is not a direct measurement of warehouse processing time and does not, by itself, prove the exact physical carrier-handoff event. Confirm the operational meaning of order_delivered_carrier_date before interpreting this KPI as a direct carrier-handoff measurement.
 KPI 6 — Carrier-Timestamp-to-Customer-Delivery Duration
 Business question: How much time elapsed between the recorded carrier-related timestamp and actual customer delivery?
 
@@ -147,13 +147,13 @@ Carrier-to-Customer Duration = order_delivered_customer_date − order_delivered
 Source columns:
 - Carrier-related timestamp: orders_clean.order_delivered_carrier_date
 - Actual customer delivery timestamp: orders_clean.order_delivered_customer_date
-Eligibility rules:
+  Eligibility rules:
 - Both timestamps must be present and valid.
 - Actual customer delivery must not precede the carrier-related timestamp.
 - The order must have a valid delivered outcome.
 - Each order must be counted once.
 - Missing and invalid intervals must be reported separately.
-Interpretation and limitation: This measures the observed elapsed interval between the available carrier-related timestamp and actual customer delivery. It is a transit-time proxy, not proof of the exact time spent physically in transit. Confirm the suitability of the carrier-related timestamp before treating this as a direct transit-time measurement.
+  Interpretation and limitation: This measures the observed elapsed interval between the available carrier-related timestamp and actual customer delivery. It is a transit-time proxy, not proof of the exact time spent physically in transit. Confirm the suitability of the carrier-related timestamp before treating this as a direct transit-time measurement.
 KPI 7 — Customer Review Analysis
 Business questions:
 - What is the distribution of customer review scores?
@@ -180,8 +180,7 @@ Rules:
 - Preserve the original review records; do not delete records just to force one review per order.
 - Report the number of orders included in each comparison group and the number of orders associated with multiple review records.
 - Avoid claiming that delivery delays caused lower scores based only on a descriptive comparison.
-Observed validation finding: The current review aggregate returned 98,410 review rows with non-null order IDs and 98,096 distinct reviewed orders with non-null order IDs, a difference of 314 rows. This difference does not establish the exact number of orders affected by multiple reviews. A multiple-review query also returned orders associated with more than one review record.
-
+  Observed validation finding: The current review aggregate returned 98,410 review rows with non-null order IDs and 98,096 distinct reviewed orders with non-null order IDs, a difference of 314 rows. This difference does not establish the exact number of orders affected by multiple reviews. A multiple-review query also returned orders associated with more than one review record.
 Required actions:
 1. Preserve the original review records.
 2. Verify the number of orders affected by multiple reviews.
@@ -204,25 +203,38 @@ The following rules apply to all relevant KPIs:
 12. Source data must remain unchanged; cleaning and analytical transformations must be reproducible.
 13. All exclusions must be documented so that reported rates can be reconciled to the source population.
 5. Required Source-Column Mapping
-The following order columns have been identified in the current SQL clean-view implementation. Runtime availability and semantic suitability must be verified before KPI implementation.
-Concept	Source view	Column	Verification status
-Order identifier	orders_clean	order_id	Verified by query results
-Order status	orders_clean	order_status	Verified by query results
-Purchase timestamp	orders_clean	order_purchase_timestamp	Identified in SQL view
-Approval timestamp	orders_clean	order_approved_at	Identified in SQL view
-Carrier-related timestamp	orders_clean	order_delivered_carrier_date	Identified; semantic interpretation requires confirmation
-Actual customer delivery timestamp	orders_clean	order_delivered_customer_date	Identified in SQL view
-Estimated delivery date	orders_clean	order_estimated_delivery_date	Identified in SQL view
+The following field names are present in the current sql/03_create_clean_views.sql definitions. Their presence in the SQL script is confirmed; runtime availability and suitability still need to be checked by executing the views and agreeing the final analytical dataset with Member 1.
+5.1 KPI fields needed for Monday's requirements review
+KPI area	Source view	Required fields	Purpose and notes
+Delivery timeliness	orders_clean	order_id, order_status, order_delivered_customer_date, order_estimated_delivery_date	Compare actual and estimated calendar dates for delivered orders. Missing either date means unknown/excluded from the eligible rate denominator.
+Purchase-to-customer-delivery duration	orders_clean	order_id, order_status, order_purchase_timestamp, order_delivered_customer_date	Subtract timestamps to calculate elapsed time in days. Delivered orders only; negative intervals are invalid and must be reported.
+Purchase-to-carrier timestamp duration	orders_clean	order_id, order_purchase_timestamp, order_delivered_carrier_date	Measures the recorded interval to the carrier-related timestamp. Do not call this warehouse processing time or a confirmed physical handoff without operational confirmation.
+Carrier timestamp to customer delivery	orders_clean	order_id, order_status, order_delivered_carrier_date, order_delivered_customer_date	Calculates the interval between the two available timestamps for delivered orders. It is a proxy, not proof of exact physical transit time.
+Cancellation rate	orders_clean	order_id, order_status	Numerator: unique orders with source status exactly canceled. Denominator: all valid unique orders in the canonical order dataset under the documented project rule.
+Review-score distribution	reviews_clean	review_id, order_id, review_score	Count raw valid review records by score; missing or invalid scores are not zero. The current clean view converts scores outside 1–5 to NULL.
+Delivery outcome versus review score	reviews_clean + orders_clean	review_id, order_id, review_score, order-level delivery classification	Average valid review scores per order before joining to order-level delivery data. Preserve raw review rows and report multiple-review cases.
+Customer geography (if used)	customers_clean	customer_id, customer_state (also customer_city if needed)	Join via the verified customer key; geography analysis is optional and must not multiply order rows.
+Product/category analysis (if used)	items_clean, products_clean, translation_clean	order_id, order_item_id, product_id, product_category_name, source_category, english_category	Aggregate to an explicit order-category grain. Keep category analysis separate when an order contains multiple categories.
 
 
-The exact source mappings for customer geography, review identifiers and scores, order-item fields, product categories, and translations must be confirmed from the corresponding clean-view definitions before implementation.
+5.2 Verified order-view column list
+Concept	Source view	Column	Current evidence/status
+Order identifier	orders_clean	order_id	Runtime query previously returned 99,441 rows, 99,441 distinct IDs, and zero missing IDs. Recheck after any view changes.
+Customer key	orders_clean	customer_id	Identified in the SQL view definition; relationship checks remain part of integration validation.
+Order status	orders_clean	order_status	Runtime status distribution was queried; values include delivered, canceled, and unavailable.
+Purchase timestamp	orders_clean	order_purchase_timestamp	Identified in the SQL view definition.
+Approval timestamp	orders_clean	order_approved_at	Identified in the SQL view definition; not currently required for the seven listed KPIs.
+Carrier-related timestamp	orders_clean	order_delivered_carrier_date	Identified in the SQL view definition; operational meaning needs confirmation.
+Actual customer delivery timestamp	orders_clean	order_delivered_customer_date	Identified in the SQL view definition.
+Estimated delivery date	orders_clean	order_estimated_delivery_date	Identified in the SQL view definition.
+
 
 If a required field is unavailable or its meaning cannot be confirmed, document the limitation and adjust the KPI scope. Do not invent a field or silently substitute an unrelated timestamp.
 6. SQL and Python Consistency Requirements
 - Member 1 is responsible for implementing the agreed analytical SQL queries.
 - Member 2 is responsible for implementing the corresponding Python calculations using the canonical MySQL database or verified exports.
 - Member 4 must validate the results.
-Both implementations must agree on:
+  Both implementations must agree on:
 - Source population and analytical grain.
 - Status eligibility.
 - Numerators and denominators.
@@ -230,7 +242,7 @@ Both implementations must agree on:
 - Duplicate handling.
 - Timestamp and calendar-date semantics.
 - Rounding and displayed units.
-Counts must match exactly for the same population. Rates and averages must match within a documented numerical tolerance.
+  Counts must match exactly for the same population. Rates and averages must match within a documented numerical tolerance.
 7. Acceptance Criteria
 The KPI specification is ready for implementation when:
 - Every KPI has a documented business meaning and formula.
@@ -293,10 +305,10 @@ The following checks must be completed before the corresponding KPI implementati
 - Member 5: Coordinate documentation and record approved team decisions.
 9. Final Status
 Deliverable: KPI Definitions and Analytical Data Contract
-Current status: Business definitions finalized; pending team approval and technical verification.
+Current status: Monday KPI requirements draft prepared; team review and technical verification pending.
 
-The KPI formulas, eligible populations, numerator and denominator rules, missing-data handling, and review aggregation rule are defined in this document. The current observed order population is 99,441 unique orders, subject to any exclusions established by documented data-quality validation.
+This Monday draft documents the proposed KPI formulas, eligible populations, numerator and denominator rules, missing-data handling, and review aggregation rule for team review. The current observed order population is 99,441 unique orders, subject to any exclusions established by documented data-quality validation.
 
 Before the KPIs are marked as technically validated, the team must verify the remaining source-column mappings, confirm the operational interpretation of the carrier-related timestamp, validate analytical joins and the one-row-per-order grain, and reconcile SQL and Python results. Any changes to the documented business definitions must be recorded explicitly.
 
-These definitions are intended to be used consistently by SQL, Python, analytical reports, and the eventual Power BI dashboard.
+After team review and source-schema confirmation, the agreed definitions should be used consistently by SQL, Python, analytical reports, and the eventual Power BI dashboard.
