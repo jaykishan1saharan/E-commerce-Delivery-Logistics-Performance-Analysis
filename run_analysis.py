@@ -1,7 +1,15 @@
 
+import os
 import sqlite3
 from pathlib import Path
 
+from src.logistics_analysis.data_loading import load_order_analysis_data
+
+os.environ.setdefault("LOGISTICS_DATA_SOURCE", "csv")
+os.environ.setdefault(
+    "LOGISTICS_ANALYSIS_CSV",
+    str(Path(__file__).resolve().parent / "data" / "raw" / "olist_orders_dataset.csv")
+)
 db_path = Path(__file__).resolve().parent / "delivery_analysis.db"
 
 queries = {
@@ -53,6 +61,17 @@ queries = {
 }
 
 with sqlite3.connect(db_path) as connection:
+    orders_df = load_order_analysis_data()
+
+    orders_df.to_sql(
+        "orders",
+        connection,
+        if_exists="replace",
+        index=False
+    )
+
+    print("Validated orders loaded:", len(orders_df))
+
     for title, sql in queries.items():
         print("\n" + "=" * 45)
         print(title)
