@@ -1,8 +1,8 @@
 Week 2 — KPI Definitions and Analytical Data Contract
 Project: E-commerce Delivery & Logistics Performance Analysis
-Phase: Week 2, Day 1
+Phase: Week 2, Day 2
 Owner: Member 3 — KPI Specification
-Status: Draft for team review; technical verification pending
+Status: Tuesday delivery-timeliness and duration definitions updated; team review and technical verification pending
 1. Purpose
 This document defines the business meaning, formulas, eligible populations, source fields, missing-data rules, and validation requirements for the project's analytical KPIs.
 
@@ -41,11 +41,19 @@ Business question: What percentage of eligible delivered orders reached customer
 
 Formula:
 
-On-Time Delivery Rate (%) = Eligible On-Time Delivered Orders / Eligible Delivered Orders × 100
+On-Time Delivery Rate (%) = (Eligible on-time delivered orders / Eligible delivered orders) × 100
 
-Numerator: Number of unique eligible delivered orders whose actual delivery calendar date is on or before the estimated delivery calendar date.
+Numerator: Count of unique delivered orders for which the calendar date of order_delivered_customer_date is less than or equal to the calendar date of order_estimated_delivery_date.
 
-Denominator: Number of unique delivered orders with valid actual and estimated delivery dates.
+Denominator: Count of unique delivered orders with both a valid actual customer-delivery timestamp and a valid estimated-delivery date.
+
+Eligibility and classification:
+- Include only orders whose order_status is delivered.
+- Compare calendar dates, not full timestamps. An actual delivery earlier than or on the estimated calendar date is on time.
+- Require a valid order_id and exactly one row per order in the analytical dataset.
+- If either required date is missing or invalid, classify timeliness as unknown and exclude the order from both the on-time and late numerators and from the eligible denominator.
+- Do not classify missing estimated dates as on time; do not impute a missing date.
+Required diagnostics: Report the total delivered orders, eligible delivered orders, on-time orders, orders with missing/invalid actual dates, and orders with missing/invalid estimated dates. Avoid double-counting an order in the diagnostic categories; if an order has both dates missing, document the counting convention.
 
 Eligibility rules:
 - The order must have delivered status.
@@ -62,26 +70,33 @@ Business question: What percentage of eligible delivered orders arrived after th
 
 Formula:
 
-Late-Delivery Rate (%) = Eligible Late Delivered Orders / Eligible Delivered Orders × 100
+Late-Delivery Rate (%) = (Eligible late delivered orders / Eligible delivered orders) × 100
 
-Numerator: Number of unique eligible delivered orders whose actual delivery calendar date is after the estimated delivery calendar date.
+Numerator: Count of unique delivered orders for which the calendar date of order_delivered_customer_date is later than the calendar date of order_estimated_delivery_date.
 
-Denominator: The same eligible delivered-order population used for the on-time delivery rate.
+Denominator: Exactly the same eligible delivered-order population used for KPI 1.
 
 Classification rules:
-- Actual date before estimated date: on time or early.
-- Actual date equal to estimated date: on time or early.
-- Actual date after estimated date: late.
-- Missing actual or estimated date: unknown for delivery-timeliness classification.
-  Validation rule: On-time and late delivery rates should sum to 100%, subject to ordinary rounding, because both use the same eligible population. Unknown and excluded records must be reported separately.
-KPI 3 — Average Delivery Duration
-Business question: How long does it take for an order to travel from purchase to actual customer delivery?
+- Actual calendar date before estimated calendar date: on time/early.
+- Actual calendar date equal to estimated calendar date: on time/early.
+- Actual calendar date after estimated calendar date: late.
+- Missing or invalid actual or estimated date: unknown; exclude from both rates and report separately.
+Validation rules:
+- Eligible on-time count + eligible late count = eligible delivered-order denominator.
+- On-time rate + late rate = 100%, subject to display rounding, because both rates use the same denominator.
+- Unknown/excluded orders are outside that denominator and must not be silently classified.
+KPI 3 — Average Delivery Duration (Purchase to Customer Delivery)
+Business question: How much elapsed time passes between order purchase and actual customer delivery?
 
-Formula:
+Per-order formula:
 
-Delivery Duration = Actual Customer Delivery Timestamp − Purchase Timestamp
+Delivery Duration = order_delivered_customer_date − order_purchase_timestamp
 
-Average Delivery Duration (days) = Sum of Eligible Delivery Durations in Days / Number of Eligible Delivered Orders
+Average formula:
+
+Average Delivery Duration (days) = Sum of valid eligible per-order durations in days / Number of eligible delivered orders
+
+Duration convention: Subtract the full timestamps to calculate elapsed time, then convert the result to days consistently. Do not subtract only calendar dates for this KPI. The chosen unit and precision must be consistent in SQL and Python.
 
 Source columns:
 - Purchase timestamp: orders_clean.order_purchase_timestamp
@@ -89,12 +104,13 @@ Source columns:
   Eligible population:
 - Delivered orders with valid purchase and actual customer delivery timestamps.
 - Each unique order is counted once.
-  Rules:
-- Calculate elapsed time from timestamps, not merely the difference between calendar dates.
-- Convert results to days consistently.
-- Missing timestamps must not be silently replaced with zero.
-- Negative intervals must be flagged as invalid.
-- Extreme positive durations must be investigated and documented rather than automatically deleted.
+  Eligibility and data-quality rules:
+- Include delivered orders only, with valid purchase and actual customer-delivery timestamps.
+- Calculate elapsed duration using full timestamps; convert to days consistently.
+- Missing or invalid timestamps are excluded from the average and counted in diagnostics; never replace them with zero.
+- Negative durations are invalid and must be flagged, excluded from the average, and reported separately.
+- Investigate extreme positive durations; do not automatically delete them without a documented rule.
+- Count each valid unique order once.
   Required outputs:
 - Average delivery duration.
 - Number of eligible orders.
@@ -305,9 +321,9 @@ The following checks must be completed before the corresponding KPI implementati
 - Member 5: Coordinate documentation and record approved team decisions.
 9. Final Status
 Deliverable: KPI Definitions and Analytical Data Contract
-Current status: Monday KPI requirements draft prepared; team review and technical verification pending.
+Current status: Tuesday delivery-timeliness and delivery-duration definitions updated; team review and technical verification pending.
 
-This Monday draft documents the proposed KPI formulas, eligible populations, numerator and denominator rules, missing-data handling, and review aggregation rule for team review. The current observed order population is 99,441 unique orders, subject to any exclusions established by documented data-quality validation.
+This version documents the delivery-timeliness classification, eligible denominator shared by on-time and late rates, delivery-duration calculation, missing-data handling, and existing KPI business rules for team review. The current observed order population is 99,441 unique orders, subject to any exclusions established by documented data-quality validation.
 
 Before the KPIs are marked as technically validated, the team must verify the remaining source-column mappings, confirm the operational interpretation of the carrier-related timestamp, validate analytical joins and the one-row-per-order grain, and reconcile SQL and Python results. Any changes to the documented business definitions must be recorded explicitly.
 
