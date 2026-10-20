@@ -1,0 +1,16 @@
+category,order_count,small_sample,cancelled_orders,cancellation_rate_pct,delivered_order_count,avg_delivery_days,on_time_eligible_orders,on_time_rate_pct
+bed_bath_table,9417,False,18,0.19,9272,12.99,9272,92.57
+health_beauty,8836,False,36,0.41,8647,12.08,8647,92.49
+sports_leisure,7720,False,47,0.61,7529,12.24,7529,93.43
+computers_accessories,6689,False,35,0.52,6529,13.17,6529,93.61
+furniture_decor,6449,False,24,0.37,6307,13.07,6307,92.88
+housewares,5884,False,37,0.63,5743,11.09,5743,94.64
+watches_gifts,5624,False,20,0.36,5493,12.81,5493,92.61
+telephony,4199,False,16,0.38,4093,12.96,4093,92.89
+auto,3897,False,24,0.62,3809,12.33,3809,92.7
+toys,3886,False,31,0.8,3803,11.73,3803,93.61
+cool_stuff,3632,False,15,0.41,3559,12.38,3559,94.1
+garden_tools,3518,False,13,0.37,3448,13.63,3448,93.47
+perfumery,3162,False,14,0.44,3086,11.91,3086,93.45
+baby,2885,False,16,0.55,2809,12.68,2809,91.95
+electronics,2550,False,6,0.24,2517,12.92,2517,92.37
