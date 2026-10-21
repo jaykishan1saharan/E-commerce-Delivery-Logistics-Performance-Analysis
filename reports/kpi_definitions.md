@@ -1,8 +1,8 @@
 Week 2 — KPI Definitions and Analytical Data Contract
 Project: E-commerce Delivery & Logistics Performance Analysis
-Phase: Week 2, Day 2
+Phase: Week 2, Day 3
 Owner: Member 3 — KPI Specification
-Status: Tuesday delivery-timeliness and duration definitions updated; team review and technical verification pending
+Status: Wednesday cancellation, carrier-related duration, transit-proxy, and review-score rules documented; team review and technical verification pending
 1. Purpose
 This document defines the business meaning, formulas, eligible populations, source fields, missing-data rules, and validation requirements for the project's analytical KPIs.
 
@@ -117,6 +117,8 @@ Source columns:
 - Number of missing or invalid timestamp records.
 - Minimum, median, and maximum duration where useful for diagnostic analysis.
 KPI 4 — Cancellation Rate
+Wednesday definition — cancellation and unavailable statuses: canceled is the only source status counted in the numerator. unavailable is a distinct status: include it in the project denominator, but never relabel it as canceled. Count valid unique orders at order grain, not item rows. If the denominator is zero, return NULL/undefined rather than 0%.
+
 Business question: What percentage of valid unique orders in the canonical order dataset were recorded as cancelled?
 
 Formula:
@@ -149,9 +151,10 @@ Source columns:
 - Carrier-related timestamp: orders_clean.order_delivered_carrier_date
   Eligibility rules:
 - Both timestamps must be present and valid.
-- The carrier-related timestamp must not precede the purchase timestamp.
+- The carrier-related timestamp must not precede the purchase timestamp; a negative interval is invalid, must be excluded from the duration summary, and must be counted in validation results.
 - The order must be counted once.
 - Missing and invalid intervals must be reported separately.
+- If no eligible intervals remain, report the average as NULL/undefined rather than 0 days.
   Interpretation and limitation: This measures the recorded elapsed time between purchase and the carrier-related timestamp. It is not a direct measurement of warehouse processing time and does not, by itself, prove the exact physical carrier-handoff event. Confirm the operational meaning of order_delivered_carrier_date before interpreting this KPI as a direct carrier-handoff measurement.
 KPI 6 — Carrier-Timestamp-to-Customer-Delivery Duration
 Business question: How much time elapsed between the recorded carrier-related timestamp and actual customer delivery?
@@ -165,10 +168,11 @@ Source columns:
 - Actual customer delivery timestamp: orders_clean.order_delivered_customer_date
   Eligibility rules:
 - Both timestamps must be present and valid.
-- Actual customer delivery must not precede the carrier-related timestamp.
+- Actual customer delivery must not precede the carrier-related timestamp; a negative interval is invalid, must be excluded from the duration summary, and must be counted in validation results.
 - The order must have a valid delivered outcome.
 - Each order must be counted once.
 - Missing and invalid intervals must be reported separately.
+- If no eligible intervals remain, report the average as NULL/undefined rather than 0 days.
   Interpretation and limitation: This measures the observed elapsed interval between the available carrier-related timestamp and actual customer delivery. It is a transit-time proxy, not proof of the exact time spent physically in transit. Confirm the suitability of the carrier-related timestamp before treating this as a direct transit-time measurement.
 KPI 7 — Customer Review Analysis
 Business questions:
@@ -181,6 +185,8 @@ Formula:
 
 Review Score Share (%) = Reviews with That Score / Valid Reviews Included in the Distribution × 100
 
+If there are no valid review scores in the selected population, the share is undefined (NULL), not 0%.
+
 Rules:
 - Confirm the score range and missing-value representation in the actual dataset.
 - Do not treat missing scores as zero.
@@ -191,7 +197,7 @@ Compare review outcomes for eligible on-time and late delivered orders.
 
 Rules:
 - Verify how reviews are linked to orders.
-- Investigate multiple review records associated with the same order.
+- Investigate multiple review records associated with the same order. The difference between review-row count and distinct reviewed-order count does not by itself equal the number of affected orders.
 - For the order-level delivery-outcome comparison, calculate the mean of valid review scores for each order, then join that one-row-per-order review aggregate to the order-level delivery dataset.
 - Preserve the original review records; do not delete records just to force one review per order.
 - Report the number of orders included in each comparison group and the number of orders associated with multiple review records.
@@ -203,6 +209,13 @@ Required actions:
 3. Investigate whether repeated records represent legitimate reviews or a data-quality issue.
 4. Use the mean of valid review scores per order for the order-level delivery-outcome comparison, and document the aggregation in SQL and Python.
 5. Do not silently delete records merely because they share an order ID.
+Wednesday implementation rules — cancellation, duration, and reviews
+- Cancellation: numerator is valid unique orders with source status exactly canceled; denominator is all valid unique orders in the canonical order dataset under the agreed project rule. unavailable remains distinct and is included in the denominator, not the numerator.
+- Purchase-to-carrier duration: calculate order_delivered_carrier_date - order_purchase_timestamp. This is a carrier-related timestamp interval, not confirmed warehouse processing time or proof of physical handoff.
+- Carrier-to-customer duration: calculate order_delivered_customer_date - order_delivered_carrier_date for eligible delivered orders. Treat it as a proxy interval, not a guaranteed measurement of physical transit.
+- Negative intervals: flag and report them as invalid; exclude them from duration averages. Do not silently repair timestamps.
+- Zero eligible records: a rate or average with a zero denominator is undefined (NULL), not zero.
+- Reviews: use raw valid review records for score distribution; average valid scores per order for delivery-outcome comparisons; preserve original rows and report multi-review orders.
 4. Shared Date and Data-Quality Rules
 The following rules apply to all relevant KPIs:
 1. Missing estimated delivery dates must never be automatically classified as on time.
@@ -321,9 +334,9 @@ The following checks must be completed before the corresponding KPI implementati
 - Member 5: Coordinate documentation and record approved team decisions.
 9. Final Status
 Deliverable: KPI Definitions and Analytical Data Contract
-Current status: Tuesday delivery-timeliness and delivery-duration definitions updated; team review and technical verification pending.
+Current status: Wednesday cancellation, carrier-related duration, transit-proxy, and review-score definitions documented; team review and technical verification pending.
 
-This version documents the delivery-timeliness classification, eligible denominator shared by on-time and late rates, delivery-duration calculation, missing-data handling, and existing KPI business rules for team review. The current observed order population is 99,441 unique orders, subject to any exclusions established by documented data-quality validation.
+This version documents cancellation-rate handling, unavailable-versus-canceled statuses, carrier-related and transit-proxy duration rules, review-score distribution and per-order review aggregation, negative-interval handling, and zero-denominator behavior, while retaining the previously defined delivery-timeliness and delivery-duration rules. The current observed order population is 99,441 unique orders, subject to any exclusions established by documented data-quality validation.
 
 Before the KPIs are marked as technically validated, the team must verify the remaining source-column mappings, confirm the operational interpretation of the carrier-related timestamp, validate analytical joins and the one-row-per-order grain, and reconcile SQL and Python results. Any changes to the documented business definitions must be recorded explicitly.
 
