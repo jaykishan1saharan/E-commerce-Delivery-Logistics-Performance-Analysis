@@ -73,6 +73,61 @@
 - `query17.csv`–`query19.csv`: staging reference checks; `query23.csv`: clean-view reference checks; `query24.csv`: translation clean-view spot check.
 - `query25.csv`–`query31.csv`: additional order key/timestamp, duplicate-key, chronology, and reference checks.
 
+## Key integrity and relationships
+
+### Key columns and evidence
+
+The logical keys below are confirmed by [`data_dictionary.csv`](data_dictionary.csv) and the partitioning/deduplication rules in [`03_create_clean_views.sql`](../../sql/03_create_clean_views.sql). 
+
+| Dataset | Confirmed logical key | Relationship role |
+|---|---|---|
+| Customers | `customer_id` | Referenced by `orders.customer_id`; `customer_unique_id` is a separate person-level identifier and is not the row key. |
+| Orders | `order_id` | Referenced by order items and reviews. |
+| Order items | `(order_id, order_item_id)` | `order_id` references orders; `product_id` references products. |
+| Reviews | `review_id` | `order_id` references orders; multiple reviews per order are allowed by this key definition. |
+| Products | `product_id` | `product_category_name` should map to the translation source category when populated and covered by the translation table. |
+| Category translations | `product_category_name` (source-language value) | Source category is the lookup key; English category is its label. |
+
+### Rows, distinct keys, and duplicate keys
+
+Raw counts and key counts below were independently measured from the six files in [`data/raw/`](../../data/raw/) using CSV headers and case-sensitive key values after trimming surrounding whitespace (UTF-8 BOM-aware read); blank key tuples are excluded from distinct counts. Staging counts are from [`query1.csv`](../../data/interim/query1.csv), clean counts from [`query21.csv`](../../data/interim/query21.csv), and duplicate checks from [`02_data_quality_audit.sql`](../../sql/02_data_quality_audit.sql), [`03_create_clean_views.sql`](../../sql/03_create_clean_views.sql), the saved duplicate-query outputs, and [`cleaning_log.csv`](cleaning_log.csv). “Duplicate excess” means rows beyond the first occurrence for each duplicated key.
+
+| Dataset / key | Raw rows | Raw distinct keys | Raw duplicate groups / excess | Staging rows | Staging distinct keys | Staging duplicate groups / excess | Clean rows | Clean distinct keys | Clean duplicate groups / excess |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Customers / `customer_id` | 99,441 | 99,441 | 0 / 0 | 99,441 | 99,441 | 0 / 0 | 99,441 | 99,441 | 0 / 0 |
+| Orders / `order_id` | 99,441 | 99,441 | 0 / 0 | 99,440 | 99,440 | 0 / 0 | 99,440 | 99,440 | 0 / 0 |
+| Order items / `(order_id, order_item_id)` | 112,650 | 112,650 | 0 / 0 | 112,649 | 112,649 | 0 / 0 | 112,649 | 112,649 | 0 / 0 |
+| Reviews / `review_id` | 99,224 | 98,410 | 789 / 814 | 99,223 | 98,409 | 789 / 814 | 98,409 | 98,409 | 0 / 0 |
+| Products / `product_id` | 32,951 | 32,951 | 0 / 0 | 32,950 | 32,950 | 0 / 0 | 32,950 | 32,950 | 0 / 0 |
+| Category translations / source `product_category_name` | 71 | 71 | 0 / 0 | 71 | 71 | 0 / 0 | 71 | 71 | 0 / 0 |
+
+Staging distinct counts are derived from the saved row totals and duplicate checks; the staging audits report no blank required key values. Clean keys are distinct by the clean-view outputs and the views' required-key filters / `ROW_NUMBER()` deduplication. The `customer_unique_id` column is not a duplicate `customer_id`: in the raw customer file it has 96,096 distinct values, with 2,997 repeated groups and 3,345 excess rows. 
+
+### Relationship checks
+
+| Relationship | Raw CSV result | Staging / clean evidence | Assessment |
+|---|---:|---:|---|
+| Orders `customer_id` → customers `customer_id` | 0 unmatched order rows | Staging: 0 (`query17.csv`); clean: 0 (`query23.csv`) | Valid in the checked raw, staging, and clean results. |
+| Items `order_id` → orders `order_id` | 0 unmatched item rows | Staging: 1 (`query18.csv`, `query29.csv`); clean: 1 (`query23.csv`, `query29.csv`) | **Unresolved staging discrepancy.** Raw source references all match, but the staged/clean result contains an orphan and the clean view retains it. |
+| Items `product_id` → products `product_id` | 0 unmatched item rows | Staging: 1 (`query19.csv`, `query31.csv`); clean: 1 (`query23.csv`, `query31.csv`) | **Unresolved staging discrepancy.** Raw source references all match, but the staged/clean result contains an orphan and the clean view retains it. |
+| Reviews `order_id` → orders `order_id` | 0 unmatched review rows | No saved staging or clean review-to-order result; the saved reference checks do not cover this relationship. | Valid in raw only; staging and clean relationship status is **unverified**. |
+| Products `product_category_name` → translation source category | 13 product rows in 2 nonblank categories have no translation (`pc_gamer`: 3; `portateis_cozinha_e_preparadores_de_alimentos`: 10); 610 products have blank categories | `02_data_quality_audit.sql` contains a staging category anti-join, but no result export was found. | Raw has 13 unmatched populated category values; missing-category rows are separate. Staging/clean relationship status is **unverified**. |
+
+Raw relationship results were counted by case-sensitive, nonblank key matching after trimming surrounding whitespace across the source CSVs. Staging results are the saved SQL results noted above. In particular, the raw item references do not reproduce the two staging orphans; the one-row raw-to-staging reductions for orders, items, and products could explain a missing staged parent, but without staging row-level data this explanation is not proven. No rows were removed from staging to hide either orphan.
+
+### Count reconciliation and unresolved items
+
+| Dataset | Raw → staging | Staging → clean | Finding |
+|---|---:|---:|---|
+| Customers | 99,441 → 99,441 | 99,441 → 99,441 | No count change. |
+| Orders | 99,441 → 99,440 (**−1**) | 99,440 → 99,440 | One raw row is absent from staging; no row-level load/rejection evidence identifies why. |
+| Order items | 112,650 → 112,649 (**−1**) | 112,649 → 112,649 | One raw row is absent from staging; cause unresolved. The staging orphan order/product references also need row-level reconciliation. |
+| Reviews | 99,224 → 99,223 (**−1**) | 99,223 → 98,409 (**−814**) | The 814-row clean reduction is exactly the duplicate-key excess (789 groups), consistent with the view's one-row-per-`review_id` rule. The additional raw-to-staging loss of one row remains unexplained. |
+| Products | 32,951 → 32,950 (**−1**) | 32,950 → 32,950 | One raw row is absent from staging; cause unresolved. |
+| Category translations | 71 → 71 | 71 → 71 | No count change. |
+
+The clean-view SQL explains the staging-to-clean behavior: it excludes missing required keys and ranks duplicate business keys, retaining the most complete row with deterministic tie-breaking. The existing key checks show no missing required keys in these staged datasets; the 814 review-row reduction is independently accounted for by review-key deduplication. No evidence explains the four raw-to-staging one-row reductions, so they remain unresolved rather than being attributed to expected filtering. Confirm by comparing source and staged key-level anti-joins and reviewing the original import logs / rejected-row settings.
+
 ## Summary
 
-The saved outputs document raw, staging, and clean-view counts for all six datasets, along with key, duplicate, value, timestamp, and reference checks. The main findings are 814 excess duplicate review rows reflected in the reviews clean-view count, four one-row raw-to-staging count differences, 166 carrier-before-purchase cases, 23 deliveries before carrier handover, and two orphan item references. The unmatched references and chronology findings are recorded for investigation; no source records were altered or deleted.
+Order IDs are unique in the raw source and staged/clean order data, and every raw and staged order customer reference checked matched a customer row. Review IDs have 789 duplicate groups (814 excess rows), removed as expected in `reviews_clean`. Raw item-to-order and item-to-product references match, while staged and clean checks each retain one orphan for each relationship. Raw review-to-order references match; staging/clean review references were not checked in the saved results. Thirteen raw products use two categories absent from the translation mapping. Four one-row raw-to-staging count differences remain unexplained. These gaps and all query/source evidence are recorded above; no source records were altered or deleted.
