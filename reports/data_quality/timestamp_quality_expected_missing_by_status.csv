@@ -1,0 +1,16 @@
+timestamp_column,order_status,count,interpretation
+order_approved_at,canceled,141,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_approved_at,created,5,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_carrier_date,unavailable,609,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_carrier_date,canceled,550,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_carrier_date,invoiced,314,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_carrier_date,processing,301,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_carrier_date,created,5,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_carrier_date,approved,2,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_customer_date,shipped,1107,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_customer_date,canceled,619,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_customer_date,unavailable,609,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_customer_date,invoiced,314,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_customer_date,processing,301,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_customer_date,created,5,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
+order_delivered_customer_date,approved,2,Expected missing timestamp context for non-delivered order; not automatically classified as a defect.
