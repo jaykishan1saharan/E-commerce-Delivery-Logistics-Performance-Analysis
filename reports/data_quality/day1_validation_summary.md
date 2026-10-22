@@ -18,3 +18,13 @@
 ## Execution status
 - `python run_analysis.py` completed successfully.
 - Source used: CSV workflow.
+
+## Raw-to-KPI reconciliation
+- Raw and KPI rows: 99,441 each
+- Unique order IDs: 99,441 in each dataset
+- Raw IDs missing from KPI: 0
+- KPI IDs missing from raw: 0
+- Order-status counts: match
+
+## SQL/Python reconciliation status
+- Pending: SQL staging tables and comparable SQL KPI results have not been validated. SQL/Python KPI reconciliation is not yet confirmed.
