@@ -2,15 +2,11 @@
 -- ============================================================
 -- Project: E-commerce Delivery Logistics Performance Analysis
 -- File: sql/04_kpi_queries.sql
--- Purpose: Prevent duplicate orders and preserve order-level grain
+-- Purpose: Validate order grain, timestamps, and delivery KPIs
 -- Database: ecommerce_delivery
--- Member 1 — Wednesday
 -- ============================================================
 
 USE ecommerce_delivery;
-
-
-
 
 -- 1. SOURCE TABLE ROW COUNTS
 SELECT 'orders' AS table_name, COUNT(*) AS row_count
@@ -27,8 +23,9 @@ SELECT 'reviews', COUNT(*) FROM reviews;
 SELECT
     COUNT(*) AS total_order_rows,
     COUNT(DISTINCT order_id) AS distinct_order_ids,
-    SUM(order_id IS NULL) AS missing_order_ids,
+    COALESCE(SUM(order_id IS NULL), 0) AS missing_order_ids,
     COUNT(*) - COUNT(DISTINCT order_id)
+        - COALESCE(SUM(order_id IS NULL), 0)
         AS duplicate_order_rows
 FROM orders;
 
@@ -38,6 +35,7 @@ SELECT
     order_id,
     COUNT(*) AS rows_per_order
 FROM orders
+WHERE order_id IS NOT NULL
 GROUP BY order_id
 HAVING COUNT(*) > 1;
 
@@ -52,8 +50,7 @@ HAVING COUNT(*) > 1;
 
 
 -- 5. CHECK CHILD-TABLE CARDINALITY
--- Multiple items or reviews per order are possible.
--- These checks identify orders with multiple child rows.
+-- Multiple items or reviews per order can be valid.
 
 SELECT
     order_id,
@@ -111,32 +108,42 @@ SELECT
     r.average_review_score,
 
     CASE
-        WHEN o.order_delivered_customer_date IS NOT NULL
+        WHEN o.order_status = 'delivered'
+         AND o.order_delivered_customer_date IS NOT NULL
          AND o.order_estimated_delivery_date IS NOT NULL
-         AND o.order_delivered_customer_date >
-             o.order_estimated_delivery_date
-        THEN 1
-        ELSE 0
+        THEN
+            CASE
+                WHEN DATE(o.order_delivered_customer_date) >
+                     DATE(o.order_estimated_delivery_date)
+                THEN 1
+                ELSE 0
+            END
+        ELSE NULL
     END AS is_late_delivery,
 
     CASE
-        WHEN o.order_delivered_customer_date IS NOT NULL
+        WHEN o.order_status = 'delivered'
+         AND o.order_delivered_customer_date IS NOT NULL
          AND o.order_purchase_timestamp IS NOT NULL
+         AND o.order_delivered_customer_date >=
+             o.order_purchase_timestamp
         THEN TIMESTAMPDIFF(
-            HOUR,
+            SECOND,
             o.order_purchase_timestamp,
             o.order_delivered_customer_date
-        )
+        ) / 86400.0
         ELSE NULL
-    END AS delivery_hours,
+    END AS delivery_days,
 
     CASE
-        WHEN o.order_delivered_customer_date IS NULL
+        WHEN o.order_status <> 'delivered'
+          OR o.order_status IS NULL
             THEN 'Not delivered'
-        WHEN o.order_estimated_delivery_date IS NULL
-            THEN 'Missing estimate'
-        WHEN o.order_delivered_customer_date >
-             o.order_estimated_delivery_date
+        WHEN o.order_delivered_customer_date IS NULL
+          OR o.order_estimated_delivery_date IS NULL
+            THEN 'Unknown'
+        WHEN DATE(o.order_delivered_customer_date) >
+             DATE(o.order_estimated_delivery_date)
             THEN 'Late'
         ELSE 'On time'
     END AS delivery_performance
@@ -151,8 +158,7 @@ LEFT JOIN review_summary AS r
 
 
 -- 7. CHECK ORDER GRAIN AFTER JOINS
--- Use the same CTEs and joins as Section 6.
--- This version measures whether the join multiplies order rows.
+-- Aggregation prevents item/review multiplicity from multiplying orders.
 
 WITH item_summary AS (
     SELECT order_id
@@ -177,8 +183,9 @@ analytical_orders AS (
 SELECT
     COUNT(*) AS joined_rows,
     COUNT(DISTINCT order_id) AS distinct_order_ids,
-    SUM(order_id IS NULL) AS missing_order_ids,
-    COUNT(*) - COUNT(DISTINCT order_id) -SUM(order_id is NULL)
+    COALESCE(SUM(order_id IS NULL), 0) AS missing_order_ids,
+    COUNT(*) - COUNT(DISTINCT order_id)
+        - COALESCE(SUM(order_id IS NULL), 0)
         AS duplicate_order_rows
 FROM analytical_orders;
 
@@ -186,46 +193,41 @@ FROM analytical_orders;
 -- 8. MISSING TIMESTAMP CHECK
 SELECT
     COUNT(*) AS total_orders,
-    SUM(order_purchase_timestamp IS NULL)
+    COALESCE(SUM(order_purchase_timestamp IS NULL), 0)
         AS missing_purchase_timestamp,
-    SUM(order_delivered_customer_date IS NULL)
+    COALESCE(SUM(order_delivered_customer_date IS NULL), 0)
         AS missing_delivery_timestamp,
-    SUM(order_estimated_delivery_date IS NULL)
+    COALESCE(SUM(order_estimated_delivery_date IS NULL), 0)
         AS missing_estimated_date
 FROM orders;
 
 
--- 9. DELIVERY CHRONOLOGY CHECK
+-- 9. DELIVERY CHRONOLOGY CHECKS
+
 SELECT COUNT(*) AS invalid_delivery_dates
 FROM orders
 WHERE order_delivered_customer_date IS NOT NULL
   AND order_purchase_timestamp IS NOT NULL
   AND order_delivered_customer_date <
       order_purchase_timestamp;
--- 9B. ADDITIONAL TIMESTAMP CHRONOLOGY CHECKS
 
--- Approval before purchase
 SELECT COUNT(*) AS approval_before_purchase
 FROM orders
 WHERE order_approved_at IS NOT NULL
   AND order_purchase_timestamp IS NOT NULL
   AND order_approved_at < order_purchase_timestamp;
 
--- Carrier handoff before purchase
 SELECT COUNT(*) AS carrier_before_purchase
 FROM orders
 WHERE order_delivered_carrier_date IS NOT NULL
   AND order_purchase_timestamp IS NOT NULL
   AND order_delivered_carrier_date < order_purchase_timestamp;
 
--- Customer delivery before carrier handoff
 SELECT COUNT(*) AS delivery_before_carrier
 FROM orders
 WHERE order_delivered_customer_date IS NOT NULL
   AND order_delivered_carrier_date IS NOT NULL
   AND order_delivered_customer_date < order_delivered_carrier_date;
-
-  -- 9C. ESTIMATED DELIVERY VALIDATION
 
 SELECT COUNT(*) AS estimate_before_purchase
 FROM orders
@@ -243,33 +245,61 @@ GROUP BY order_status
 ORDER BY order_count DESC;
 
 
--- 11. LATE DELIVERY KPI SUMMARY
+-- 11. LATE-DELIVERY KPI SUMMARY
+-- Eligible denominator: delivered orders with valid actual and
+-- estimated delivery timestamps. Compare calendar dates.
+
 SELECT
-    COUNT(*) AS delivered_orders_with_dates,
+    COUNT(*) AS eligible_delivered_orders,
+
     SUM(
         CASE
-            WHEN order_delivered_customer_date >
-                 order_estimated_delivery_date
+            WHEN DATE(order_delivered_customer_date) >
+                 DATE(order_estimated_delivery_date)
             THEN 1
             ELSE 0
         END
     ) AS late_delivered_orders,
+
+    SUM(
+        CASE
+            WHEN DATE(order_delivered_customer_date) <=
+                 DATE(order_estimated_delivery_date)
+            THEN 1
+            ELSE 0
+        END
+    ) AS on_time_delivered_orders,
+
     ROUND(
         100.0 * SUM(
             CASE
-                WHEN order_delivered_customer_date >
-                     order_estimated_delivery_date
+                WHEN DATE(order_delivered_customer_date) >
+                     DATE(order_estimated_delivery_date)
                 THEN 1
                 ELSE 0
             END
         ) / NULLIF(COUNT(*), 0),
         2
-    ) AS late_delivery_percentage
+    ) AS late_delivery_percentage,
+
+    ROUND(
+        100.0 * SUM(
+            CASE
+                WHEN DATE(order_delivered_customer_date) <=
+                     DATE(order_estimated_delivery_date)
+                THEN 1
+                ELSE 0
+            END
+        ) / NULLIF(COUNT(*), 0),
+        2
+    ) AS on_time_delivery_percentage
+
 FROM orders
-WHERE order_delivered_customer_date IS NOT NULL
+WHERE order_status = 'delivered'
+  AND order_delivered_customer_date IS NOT NULL
   AND order_estimated_delivery_date IS NOT NULL;
 
 
 -- End of queries.
--- Record actual before/after counts and exceptions.
--- Do not claim validation passed until results are checked.
+-- Record actual query results and exceptions after execution.
+-- These checks do not delete or modify source records.

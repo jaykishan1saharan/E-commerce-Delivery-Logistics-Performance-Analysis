@@ -121,26 +121,26 @@ SELECT COUNT(*) AS total_translation_rows FROM translation_stage;
 
 -- The first translation column was imported with a UTF-8 BOM in its
 -- name in this database. Use the exact column name shown by DESCRIBE.
--- The query below assumes the column is named `ï»¿product_category_name`.
+-- The query below assumes the column is named `product_category_name`.
 SELECT
-    SUM(`ï»¿product_category_name` IS NULL) AS missing_source_category,
+    SUM(`product_category_name` IS NULL) AS missing_source_category,
     SUM(product_category_name_english IS NULL) AS missing_english_category,
-    SUM(TRIM(COALESCE(`ï»¿product_category_name`, '')) = '') AS blank_source_category,
+    SUM(TRIM(COALESCE(`product_category_name`, '')) = '') AS blank_source_category,
     SUM(TRIM(COALESCE(product_category_name_english, '')) = '') AS blank_english_category
 FROM translation_stage;
 
-SELECT `ï»¿product_category_name`, COUNT(*) AS occurrence_count
+SELECT `product_category_name`, COUNT(*) AS occurrence_count
 FROM translation_stage
-GROUP BY `ï»¿product_category_name`
+GROUP BY `product_category_name`
 HAVING COUNT(*) > 1;
 
 SELECT p.product_category_name, COUNT(*) AS product_count
 FROM products_stage p
 LEFT JOIN translation_stage t
-    ON p.product_category_name = t.`ï»¿product_category_name`
+    ON p.product_category_name = t.`product_category_name`
 WHERE p.product_category_name IS NOT NULL
   AND TRIM(p.product_category_name) <> ''
-  AND t.`ï»¿product_category_name` IS NULL
+  AND t.`product_category_name` IS NULL
 GROUP BY p.product_category_name
 ORDER BY product_count DESC;
 
