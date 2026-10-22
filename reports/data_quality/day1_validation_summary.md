@@ -25,12 +25,15 @@
 | Dataset | Raw CSV file | Staging table | Raw rows | Staging rows | Clean view | Clean rows |
 |---|---|---|---:|---:|---|---:|
 | Customers | `olist_customers_dataset.csv` | `customers_stage` | 99,441 | 99,441 | `customers_clean` | 99,441 |
-| Orders | `olist_orders_dataset.csv` | `orders_stage` | 99,441 | 99,440 | `orders_clean` | 99,440 |
-| Order items | `olist_order_items_dataset.csv` | `items_stage` | 112,650 | 112,649 | `items_clean` | 112,649 |
-| Reviews | `olist_order_reviews_dataset.csv` | `reviews_stage` | 99,224 | 99,223 | `reviews_clean` | 98,409 |
-| Products | `olist_products_dataset.csv` | `products_stage` | 32,951 | 32,950 | `products_clean` | 32,950 |
+| Orders | `olist_orders_dataset.csv` | `orders_stage` | 99,441 | 99,441 | `orders_clean` | 99,441 |
+| Order items | `olist_order_items_dataset.csv` | `items_stage` | 112,650 | 112,650 | `items_clean` | 112,650 |
+| Reviews | `olist_order_reviews_dataset.csv` | `reviews_stage` | 99,224 | 99,224 | `reviews_clean` | 98,410 |
+| Products | `olist_products_dataset.csv` | `products_stage` | 32,951 | 32,951 | `products_clean` | 32,951 |
 | Category translations | `product_category_name_translation.csv` | `translation_stage` | 71 | 71 | `translation_clean` | 71 |
-| **Total** |  |  | **443,778** | **443,774** |  | **443,660** |
+| **Total** |  |  | **443,778** | **443,778** |  | **442,964** |
+
+**Count reconciliation:** Raw CSV record counts were verified using `csv.reader` and compared with the current MySQL staging tables and clean views. The reviews clean view removes 814 excess duplicate `review_id` records. Previously saved query exports may reflect an earlier run.
+
 
 ## Audit log
 
@@ -45,9 +48,9 @@
 | Order items | Duplicate `(order_id, order_item_id)` | Duplicate groups | 0 | Checked; no duplicate groups returned | Composite item key duplicate check. | [query10.csv](../../data/interim/query10.csv), [query27.csv](../../data/interim/query27.csv) |
 | Reviews | Missing checked identifiers, score, and timestamps | Rows | 0 | Checked and retained | Review ID, order ID, score, creation timestamp, and answer timestamp checks. | [query5.csv](../../data/interim/query5.csv) |
 | Reviews | Duplicate `review_id` | Duplicate groups; excess rows | 789 groups; 814 excess rows | Ranked by completeness in existing clean view | Duplicate review IDs account for the 814-row staging-to-clean reduction. | [query11.csv](../../data/interim/query11.csv), [query21.csv](../../data/interim/query21.csv) |
-| Reviews | Blank or NULL optional title/message | Rows | 87,657 titles; 58,255 messages | Retained; no text imputed | Review text can be optional. | [query5.csv](../../data/interim/query5.csv) |
+| Reviews | Blank or NULL optional title/message | Rows | 87,658 titles; 58,256 messages | Retained; no text imputed | Review text can be optional. | [query5.csv](../../data/interim/query5.csv) |
 | Reviews | Invalid score outside 1–5 | Rows | 0 | Checked; none returned | All reported scores are within the valid range. | [query15.csv](../../data/interim/query15.csv) |
-| Reviews | Score distribution | Counts by score | 1: 11,424; 2: 3,151; 3: 8,179; 4: 19,141; 5: 57,328 | Recorded distribution | Descriptive check. | [query14.csv](../../data/interim/query14.csv) |
+| Reviews | Score distribution | Counts by score | 1: 11,424; 2: 3,151; 3: 8,179; 4: 19,142; 5: 57,328 | Recorded distribution | Descriptive check. | [query14.csv](../../data/interim/query14.csv) |
 | Products | Missing product ID | Rows | 0 | Checked and retained | No product IDs reported missing. | [query6.csv](../../data/interim/query6.csv) |
 | Products | Blank or NULL category | Rows | 610 | Retained; no category imputed | Category cannot be inferred from this check. | [query6.csv](../../data/interim/query6.csv) |
 | Products | NULL or non-positive dimensions | Field values | Length: 2; height: 2; width: 2; weight: 6 | Retained as reported in staging; clean-view logic normalizes non-positive values | Each result combines NULL and non-positive values. | [query6.csv](../../data/interim/query6.csv) |
