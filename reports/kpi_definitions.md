@@ -1,8 +1,8 @@
 Week 2 — KPI Definitions and Analytical Data Contract
 Project: E-commerce Delivery & Logistics Performance Analysis
-Phase: Week 2, Day 3
+Phase: Week 2, Day 4
 Owner: Member 3 — KPI Specification
-Status: Wednesday cancellation, carrier-related duration, transit-proxy, and review-score rules documented; team review and technical verification pending
+Status: Thursday acceptance checks and source-column requirements documented; cross-member schema review and technical verification pending
 1. Purpose
 This document defines the business meaning, formulas, eligible populations, source fields, missing-data rules, and validation requirements for the project's analytical KPIs.
 
@@ -272,18 +272,46 @@ If a required field is unavailable or its meaning cannot be confirmed, document 
 - Timestamp and calendar-date semantics.
 - Rounding and displayed units.
   Counts must match exactly for the same population. Rates and averages must match within a documented numerical tolerance.
-7. Acceptance Criteria
+7. Acceptance Criteria and Implementation Checks
 The KPI specification is ready for implementation when:
 - Every KPI has a documented business meaning and formula.
-- Numerators, denominators, and eligible populations are explicit.
-- Missing dates and invalid intervals have defined behavior.
-- Required source fields have been mapped to actual columns.
-- The primary dataset has a documented one-row-per-order grain.
-- Review and item joins cannot silently multiply order counts.
-- Members 1 and 2 agree to use the same definitions.
-- Member 4 has clear validation rules.
+- Numerators, denominators, eligible populations, units, and exclusions are explicit.
+- Missing dates, invalid timestamps, negative intervals, and zero denominators have defined behavior.
+- Required source fields are mapped to actual columns in the agreed SQL analytical output.
+- The primary delivery dataset contains one row per valid unique order.
+- Review and item data are aggregated to the intended grain before joining to order-level data.
+- Members 1 and 2 confirm that SQL aliases and Python field names implement these definitions consistently.
+- Member 4 has clear validation rules and can reproduce the checks against the analytical output.
 - Any unavailable KPI or unresolved technical definition is explicitly recorded.
-- Final team decisions are documented in this file.
+- Final team decisions and any agreed changes are documented in this file.
+7.1 KPI acceptance checks
+KPI	Acceptance check	Expected behavior if the check fails
+On-time delivery rate	Eligible delivered orders have valid actual and estimated dates; actual and estimated calendar dates are compared; each eligible order is counted once.	Flag missing/invalid dates as unknown; do not classify them as on time. Investigate duplicate order rows.
+Late-delivery rate	Uses exactly the same eligible denominator as the on-time rate; a delivery is late only when the actual calendar date is after the estimate.	Do not use a different population for the two rates. Investigate if on-time count + late count does not equal the eligible denominator.
+Average delivery duration	For delivered orders, subtract purchase timestamp from actual customer-delivery timestamp; convert elapsed time to days consistently.	Exclude and report missing/invalid timestamps and negative intervals; investigate extreme positive durations instead of deleting automatically.
+Cancellation rate	Count unique orders with source status exactly canceled; denominator is all valid unique orders in the canonical order dataset under the documented project rule.	Keep unavailable separate from canceled; document any excluded malformed records. Return undefined/NULL if denominator is zero.
+Purchase-to-carrier timestamp duration	Subtract order_purchase_timestamp from order_delivered_carrier_date using valid chronological timestamps.	Report missing/invalid/negative intervals; do not describe the result as confirmed warehouse processing time or physical handoff without operational confirmation.
+Carrier-timestamp-to-customer-delivery duration	For eligible delivered orders, subtract order_delivered_carrier_date from order_delivered_customer_date.	Report missing/invalid/negative intervals; describe as a proxy interval unless timestamp semantics are confirmed.
+Review-score distribution	Count valid review records by supported score; denominator is valid review records included in the distribution.	Missing/invalid scores are not zero. If no valid scores exist, return undefined/NULL.
+Review score by delivery outcome	Average valid review scores per order before joining to one-row-per-order delivery data; report comparison group counts and multi-review orders.	Preserve original review rows; investigate join multiplication and do not infer causation from descriptive comparisons.
+
+
+7.2 Required source-column contract for implementation
+The following columns are the minimum required inputs for the listed KPI calculations. Member 1 should confirm whether these fields are present in the final analytical SQL output and provide stable aliases; Member 2 should confirm the Python loader exposes the same names or document an explicit, reviewed mapping.
+Analysis/KPI	Required fields	Grain/notes
+Order-level base	order_id, order_status	Exactly one row per order; verify uniqueness and non-null IDs.
+Delivery timeliness	order_id, order_status, order_delivered_customer_date, order_estimated_delivery_date	Delivered orders; compare calendar dates; missing/invalid dates are unknown.
+Purchase-to-customer-delivery duration	order_id, order_status, order_purchase_timestamp, order_delivered_customer_date	Delivered orders; subtract full timestamps and report duration in days.
+Purchase-to-carrier timestamp duration	order_id, order_purchase_timestamp, order_delivered_carrier_date	Carrier timestamp meaning must be confirmed; duration is a proxy.
+Carrier timestamp to customer delivery	order_id, order_status, order_delivered_carrier_date, order_delivered_customer_date	Delivered outcome; chronological valid timestamps required.
+Cancellation rate	order_id, order_status	Unique order grain; source status canceled is numerator; denominator follows documented project rule.
+Review-score distribution	review_id, order_id, review_score	Raw review-record grain; preserve original rows and exclude missing/invalid scores from score distribution.
+Review score by delivery outcome	order_id, order-level delivery classification, per-order mean valid review score	Aggregate reviews to one row per order before joining; report multi-review orders and group sizes.
+
+
+Customer geography (customer_id, customer_state/customer_city) and product/category fields (order_id, order_item_id, product_id, category mapping fields) are optional for geographic or category extensions, not prerequisites for the core seven KPIs. Their exact names must be verified against the relevant clean-view definitions before use.
+
+Cross-member review required: Member 1 confirms the SQL analytical output fields and aliases; Member 2 confirms the Python loader maps to those fields; Member 3 updates this contract if either implementation requires an agreed naming adjustment. Do not claim schema agreement until Members 1 and 2 have reviewed it.
 8. Validation Evidence and Outstanding Technical Checks
 8.1 Observed MySQL validation results — 19 October 2026
 The following results were obtained from the current MySQL clean views.
@@ -328,15 +356,16 @@ The following checks must be completed before the corresponding KPI implementati
 4. Verify that the documented KPI definitions produce consistent results in SQL and Python and that joins do not multiply order counts.
 5. Confirm any additional record exclusions through documented data-quality validation; do not apply exclusions silently.
 8.3 Implementation dependencies
-- Member 1: Confirm source mappings and the analytical SQL dataset.
-- Member 2: Confirm the definitions can be implemented consistently in Python using the canonical MySQL data or verified exports.
+- Member 1: Confirm source mappings, stable aliases, and the analytical SQL dataset.
+- Member 2: Confirm the Python loader exposes the same fields or a documented mapping using the canonical MySQL data or verified exports.
+- Member 3: Keep KPI definitions and acceptance checks aligned with the agreed SQL/Python contract; record any approved changes.
 - Member 4: Validate source populations, date handling, joins, and KPI calculations.
 - Member 5: Coordinate documentation and record approved team decisions.
 9. Final Status
 Deliverable: KPI Definitions and Analytical Data Contract
-Current status: Wednesday cancellation, carrier-related duration, transit-proxy, and review-score definitions documented; team review and technical verification pending.
+Current status: Thursday acceptance checks and required source-column contract documented; cross-member review and technical verification pending.
 
-This version documents cancellation-rate handling, unavailable-versus-canceled statuses, carrier-related and transit-proxy duration rules, review-score distribution and per-order review aggregation, negative-interval handling, and zero-denominator behavior, while retaining the previously defined delivery-timeliness and delivery-duration rules. The current observed order population is 99,441 unique orders, subject to any exclusions established by documented data-quality validation.
+This version adds explicit acceptance checks for the seven KPIs and a minimum source-column contract for the core analytical calculations. It does not claim that Members 1 and 2 have confirmed the final SQL/Python schema or that the KPIs have been technically validated. The current observed order population is 99,441 unique orders, subject to any exclusions established by documented data-quality validation.
 
 Before the KPIs are marked as technically validated, the team must verify the remaining source-column mappings, confirm the operational interpretation of the carrier-related timestamp, validate analytical joins and the one-row-per-order grain, and reconcile SQL and Python results. Any changes to the documented business definitions must be recorded explicitly.
 
