@@ -19,6 +19,7 @@
 | 17 | Compared raw, staging, and clean-view counts | Comparison recorded below for all six datasets. |
 | 18 | Recorded verified findings and discrepancies | Audit log below records results and saved query evidence. |
 | 20 | Created `reports/data_quality/day1_validation_summary.md` | This file. |
+| 21 | Added raw-order timestamp-quality findings | Counts, status context, duration review criteria, and exception evidence are summarized below. |
 
 ## Dataset row-count baseline
 
@@ -72,6 +73,30 @@
 - `query13.csv`–`query16.csv`: amount, score, and timestamp checks.
 - `query17.csv`–`query19.csv`: staging reference checks; `query23.csv`: clean-view reference checks; `query24.csv`: translation clean-view spot check.
 - `query25.csv`–`query31.csv`: additional order key/timestamp, duplicate-key, chronology, and reference checks.
+
+## Timestamp-quality findings (raw orders)
+
+The timestamp audit checked all **99,441** rows and distinct order IDs in [`olist_orders_dataset.csv`](../../data/raw/olist_orders_dataset.csv). It examined `order_purchase_timestamp`, `order_approved_at`, `order_delivered_carrier_date`, `order_delivered_customer_date`, and `order_estimated_delivery_date`, alongside `order_id` and `order_status`. This raw-file audit is separate from the staging counts above; no source records were changed or removed.
+
+| Issue | Count | Assessment |
+|---|---:|---|
+| Missing purchase timestamp | 0 | None found. |
+| Missing estimated-delivery timestamp | 0 | None found. |
+| Non-empty timestamp values that failed parsing | 0 | None found across the five timestamp columns. |
+| Missing approval timestamp | 160 total; 14 delivered and 146 non-delivered | Approval time is not required for the current delivery KPIs; review if approval timing is analyzed. |
+| Missing carrier-related timestamp | 1,783 total; 2 delivered and 1,781 non-delivered | Missing values on non-delivered orders are status context; the 2 delivered orders need review for carrier-timing eligibility. |
+| Missing actual-delivery timestamp | 2,965 total; 8 delivered and 2,957 non-delivered | The 8 delivered orders are delivery-KPI eligibility exceptions. The non-delivered cases are not automatically defects; this includes 619 canceled orders with no delivery timestamp. |
+| Actual delivery before purchase | 0 | No negative purchase-to-delivery intervals found. |
+| Carrier-related timestamp before purchase | 166 | Chronology exceptions: 165 delivered orders and 1 shipped order. |
+| Carrier-related timestamp after actual delivery | 23 | Chronology exceptions for review. |
+| Actual-delivery timestamp on a non-delivered order | 6 | All 6 are marked canceled; reconcile status and timestamp without changing either automatically. |
+| Delivered orders after estimated calendar date | 6,534 | A late-delivery outcome, not an impossible chronology defect. |
+| Valid delivered purchase-to-delivery durations | 96,470 | Purchase-to-actual-delivery elapsed time, using timestamps. |
+| Durations above the exploratory 99th percentile | 965 | P99 is 46.050262 days; maximum is 209.628611 days. Investigation flags only—no deletion, exclusion, or winsorization rule was applied. |
+
+Missing delivery-related timestamps for non-delivered statuses are separated from data-quality defects. Counts by status and order-level exceptions were reviewed in the timestamp audit; no records were changed, removed, or winsorized.
+
+The checks align with current KPI draft: count unique orders, require applicable timestamps for delivered-order KPIs, report missing data separately, use timestamp subtraction for durations and calendar dates for lateness, and investigate rather than automatically exclude negative or extreme durations. KPI definitions remain subject to team approval. `order_delivered_carrier_date` is treated only as a recorded carrier-related timestamp; its interpretation as the exact physical handoff still needs confirmation.
 
 ## Key integrity and relationships
 
@@ -130,4 +155,4 @@ The clean-view SQL explains the staging-to-clean behavior: it excludes missing r
 
 ## Summary
 
-Order IDs are unique in the raw source and staged/clean order data, and every raw and staged order customer reference checked matched a customer row. Review IDs have 789 duplicate groups (814 excess rows), removed as expected in `reviews_clean`. Raw item-to-order and item-to-product references match, while staged and clean checks each retain one orphan for each relationship. Raw review-to-order references match; staging/clean review references were not checked in the saved results. Thirteen raw products use two categories absent from the translation mapping. Four one-row raw-to-staging count differences remain unexplained. These gaps and all query/source evidence are recorded above; no source records were altered or deleted.
+Order IDs are unique in the raw source and staged/clean order data, and every raw and staged order customer reference checked matched a customer row. Review IDs have 789 duplicate groups (814 excess rows), removed as expected in `reviews_clean`. Raw item-to-order and item-to-product references match, while staged and clean checks each retain one orphan for each relationship. Raw review-to-order references match; staging/clean review references were not checked in the saved results. Thirteen raw products use two categories absent from the translation mapping. Four one-row raw-to-staging count differences remain unexplained. Timestamp validation found no missing purchase or estimated-delivery timestamps, no unparseable timestamp values, and no actual delivery before purchase; it flagged carrier chronology exceptions, eight delivered orders missing actual delivery timestamps, six canceled orders with actual-delivery timestamps, and 965 unusually long durations for investigation. Late deliveries and missing timestamps on non-delivered orders are retained as business/status context, not automatically treated as defects. These gaps and all query/source evidence are recorded above; no source records were altered or deleted.
