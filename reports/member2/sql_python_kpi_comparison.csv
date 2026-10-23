@@ -1,12 +1,11 @@
-
 metric,python_value,sql_value,difference,status,definition
-total_orders,99441,99441,0,MATCH,All dataset rows
-unique_order_ids,99441,99441,0,MATCH,Distinct order IDs
-duplicate_order_ids,0,0,0,MATCH,Expected zero
-missing_order_ids,0,0,0,MATCH,Expected zero
-delivered_orders,96478,96478,0,MATCH,Status equals delivered
-cancelled_orders,625,625,0,MATCH,Status equals canceled
-late_deliveries_calendar_dates,6534,6534,0,MATCH,Delivered; actual calendar date after estimate
-on_time_deliveries_calendar_dates,89936,89936,0,MATCH,Eligible delivered orders minus late deliveries
-eligible_delivered_orders,96470,96470,0,MATCH,Delivered with valid actual and estimated dates
-late_deliveries_existing_flags,6534,,,NOT AVAILABLE IN orders_clean,The on_time_eligible and on_time columns are absent; date-based late deliveries were verified separately
+total_orders,99441,99441,0,PASS,All dataset rows
+unique_order_ids,99441,99441,0,PASS,Distinct order IDs
+duplicate_order_ids,0,0,0,PASS,Expected zero
+missing_order_ids,0,0,0,PASS,Expected zero
+delivered_orders,96478,96478,0,PASS,Status equals delivered
+cancelled_orders,625,625,0,PASS,Status equals canceled
+late_deliveries_calendar_dates,6534,6534,0,PASS,Delivered; actual calendar date after estimate
+on_time_deliveries_calendar_dates,89936,89936,0,PASS,Eligible delivered orders not late
+eligible_delivered_orders,96470,96470,0,PASS,Delivered with valid actual and estimated dates
+late_deliveries_existing_flags,6534,6534,0,PASS,Existing on_time_eligible and on_time flags
