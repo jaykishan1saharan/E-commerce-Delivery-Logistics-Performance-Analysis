@@ -96,8 +96,7 @@ The timestamp audit checked all **99,441** rows and distinct order IDs in [`olis
 
 Missing delivery-related timestamps for non-delivered statuses are separated from data-quality defects. Counts by status and order-level exceptions were reviewed in the timestamp audit; no records were changed, removed, or winsorized.
 
-The checks align with current KPI draft: count unique orders, require applicable timestamps for delivered-order KPIs, report missing data separately, use timestamp subtraction for durations and calendar dates for lateness, and investigate rather than automatically exclude negative or extreme durations. KPI definitions remain subject to team approval. `order_delivered_carrier_date` is treated only as a recorded carrier-related timestamp; its interpretation as the exact physical handoff still needs confirmation.
-
+The checks align with current KPI draft: count unique orders, require applicable timestamps for delivered-order KPIs, report missing data separately, use timestamp subtraction for durations and calendar dates for lateness, and investigate rather than automatically exclude negative or extreme durations. `order_delivered_carrier_date` is treated only as a recorded carrier-related timestamp.
 ## Key integrity and relationships
 
 ### Key columns and evidence
@@ -162,5 +161,45 @@ Order IDs are unique in the raw source and staged/clean order data, and every ra
 Tests are implemented in [`tests/test_data_validation.py`](../../tests/test_data_validation.py) and run with Python's standard-library `unittest`; no test-framework dependency was added. The raw orders CSV is validated for required columns, nonblank unique order IDs, and customer delivery timestamps that do not precede purchase. Controlled cases cover duplicate detection, timestamp-sequence ordering, and the rule that missing actual or estimated delivery timestamps produce an unknown on-time result rather than an on-time result.
 
 **Command:** `python -m unittest discover -s tests -v`
-**Result:** 7 tests run in 4.436 seconds; 6 passed, 1 skipped, 0 failed (`OK (skipped=1)`).
-**Skipped check:** Final order-level row count versus distinct `order_id` count.SQL export is not present; the test expects it at `data/interim/final_order_level.csv`. The check will run automatically once that file is supplied.
+**Result:** 7 tests run in 4.738 seconds; 6 passed, 1 skipped, 0 failed (`OK (skipped=1)`).
+**Skipped check:** Final order-level row count versus distinct `order_id` count. No final SQL export is present. The test currently looks for `data/interim/final_order_level.csv`.Runs automatically when provided.
+
+## Analytical dataset grain and KPI verification 
+### Inputs and execution scope
+
+Reviewed [`sql/04_kpi_queries.sql`](../../sql/04_kpi_queries.sql) and the available KPI contract in [`kpi_definitions.md`](../kpi_definitions.md). The SQL builds `item_summary` and `review_summary` grouped by `order_id` before left-joining them to orders, which is the correct pattern for preventing item/review fan-out. It currently reads the `*_stage` tables. No final joined dataset export or execution result for this query is present, so its actual output row count, distinct order IDs, duplicates, and SQL/Python parity cannot be reported as verified.
+
+### Source grain and one-to-many join impact
+
+The following counts were recomputed from the available UTF-8-BOM-aware raw CSVs.
+| Measure | Verified result |
+|---|---:|
+| Raw orders rows / distinct nonblank `order_id` / duplicate groups | 99,441 / 99,441 / 0 |
+| Raw customers rows / distinct `customer_id` | 99,441 / 99,441 |
+| Raw order items rows / distinct `(order_id, order_item_id)` | 112,650 / 112,650 |
+| Orders with one or more items / orders with multiple items | 98,666 / 9,803 |
+| Raw reviews rows / distinct nonblank `review_id` / duplicate groups / duplicate excess | 99,224 / 98,410 / 789 / 814 |
+| Reviewed orders / orders with multiple review rows / excess review rows by order / max reviews per order | 98,673 / 547 / 551 / 3 |
+
+For the raw source, a left join from orders to item detail without aggregation would produce 113,425 rows (+3,984); joining review detail without aggregation would produce 99,992 (+551); joining both detail tables would produce 114,092 (+14,651). The raw customer key is unique and has no unmatched order references. These counts demonstrate why the SQL's aggregate-before-join pattern is necessary. 
+The saved SQL audit snapshots report 99,440 rows in both `orders_stage` and `orders_clean` (`query1.csv`, `query21.csv`), while the raw source has 99,441 orders. The KPI contract's 19 October observation instead says `orders_clean` has 99,441 rows. This unresolved one-row/snapshot discrepancy means the saved outputs and contract cannot substitute for a current final-dataset grain check.
+
+### Timestamp checks against the KPI contract
+
+The contract requires delivered status, valid actual and estimated dates, and **calendar-date** comparison for on-time/late classification. Raw-source verification found:
+
+| Measure | Verified result |
+|---|---:|
+| Delivered orders | 96,478 |
+| Delivered orders with actual and estimated timestamps (eligible dates) | 96,470 |
+| Eligible on-time / late by calendar date | 89,936 / 6,534 |
+| Missing actual delivery timestamps: delivered / non-delivered | 8 / 2,957 |
+| Missing estimated delivery timestamps | 0 |
+| Actual delivery before purchase | 0 |
+| Carrier-related timestamp before purchase | 166 |
+| Actual delivery before carrier-related timestamp | 23 |
+| Non-delivered orders with actual and estimated timestamps | 6 (all canceled); 1 is late by calendar date |
+
+There is a KPI implementation discrepancy in `sql/04_kpi_queries.sql`: its late flag compares full timestamps (`actual > estimated`) rather than calendar dates, and its late-summary query does not filter to delivered status. Applied to the raw records, full-timestamp comparison marks 7,826 rows late versus 6,534 by the agreed calendar-date rule—1,292 additional same-date deliveries are misclassified because the estimate is at midnight. The no-status-filter population also contains six canceled orders with both dates, contrary to the delivered-only eligibility rule. 
+
+

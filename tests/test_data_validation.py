@@ -57,7 +57,7 @@ def is_on_time(
     estimated = parse_timestamp(estimated_delivery)
     if actual is None or estimated is None:
         return None
-    return actual <= estimated
+    return actual.date() <= estimated.date()
 
 
 class OrderDataValidationTests(unittest.TestCase):
@@ -122,17 +122,17 @@ class OrderDataValidationTests(unittest.TestCase):
             )
         )
 
-    def test_missing_delivery_timestamps_are_not_classified_as_on_time(self):
+    def test_on_time_uses_calendar_dates_and_missing_dates_are_unknown(self):
         estimated = "2018-01-02 10:00:00"
         self.assertIsNone(is_on_time(None, estimated))
         self.assertIsNone(
             is_on_time("2018-01-02 09:00:00", None)
         )
         self.assertTrue(
-            is_on_time("2018-01-02 09:00:00", estimated)
+            is_on_time("2018-01-02 23:59:59", estimated)
         )
         self.assertFalse(
-            is_on_time("2018-01-02 11:00:00", estimated)
+            is_on_time("2018-01-03 00:00:00", estimated)
         )
 
     @unittest.skipUnless(
