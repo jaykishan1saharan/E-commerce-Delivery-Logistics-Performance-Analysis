@@ -9,4 +9,4 @@ cancelled_orders,625,625,0,MATCH,Status equals canceled
 late_deliveries_calendar_dates,6534,6534,0,MATCH,Delivered; actual calendar date after estimate
 on_time_deliveries_calendar_dates,89936,89936,0,MATCH,Eligible delivered orders minus late deliveries
 eligible_delivered_orders,96470,96470,0,MATCH,Delivered with valid actual and estimated dates
-late_deliveries_existing_flags,6534,,,PENDING SQL RESULT,Existing on_time_eligible and on_time flags
+late_deliveries_existing_flags,6534,,,NOT AVAILABLE IN orders_clean,The on_time_eligible and on_time columns are absent; date-based late deliveries were verified separately
