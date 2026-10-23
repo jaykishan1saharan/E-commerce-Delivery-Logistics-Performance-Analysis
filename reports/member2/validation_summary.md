@@ -44,3 +44,21 @@
 ## Reproduction
 1. Run `python run_analysis.py`
 2. Run `python validate_friday.py`
+## SQL–Python KPI Reconciliation
+
+**Status: PASS**
+
+SQL results from the `ecommerce_delivery.orders_clean` table were compared with Python validation results using matching KPI definitions.
+
+- KPIs compared: 8
+- KPIs matched: 8
+- KPIs mismatched: 0
+- Total orders: 99,441
+- Delivered orders: 96,478
+- Cancelled orders: 625
+- Eligible delivered orders: 96,470
+- Late deliveries by calendar-date rule: 6,534
+
+All eight compared KPIs matched exactly. The late-delivery calculation used the condition that the actual delivery date is later than the estimated delivery date, comparing calendar dates.
+
+**Scope note:** This confirms agreement for the eight KPIs listed above; it does not establish that every table or metric in the database has been reconciled.
