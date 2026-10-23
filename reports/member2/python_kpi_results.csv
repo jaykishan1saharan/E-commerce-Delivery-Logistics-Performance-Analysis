@@ -1,0 +1,11 @@
+metric,python_value,definition
+total_orders,99441,All dataset rows
+unique_order_ids,99441,Distinct order IDs
+duplicate_order_ids,0,Expected zero
+missing_order_ids,0,Expected zero
+delivered_orders,96478,Status equals delivered
+cancelled_orders,625,Status equals canceled
+late_deliveries_calendar_dates,6534,Delivered; actual calendar date after estimate
+on_time_deliveries_calendar_dates,89936,Eligible delivered orders not late
+eligible_delivered_orders,96470,Delivered with valid actual and estimated dates
+late_deliveries_existing_flags,6534,Existing on_time_eligible and on_time flags
