@@ -1,4 +1,4 @@
-# Day 1 Data Quality Validation Summary
+# Data Validation Summary
 
 **Project:** E-commerce Delivery & Logistics Performance Analysis  
 **Database:** `ecommerce_delivery`
@@ -18,7 +18,7 @@
 | 11 | Counted rows in all six existing clean views | Saved MySQL output `query21.csv`. |
 | 17 | Compared raw, staging, and clean-view counts | Comparison recorded below for all six datasets. |
 | 18 | Recorded verified findings and discrepancies | Audit log below records results and saved query evidence. |
-| 20 | Created `reports/data_quality/day1_validation_summary.md` | This file. |
+| 20 | Created `reports/data_quality/data_validation_summary.md` | This file. |
 | 21 | Added raw-order timestamp-quality findings | Counts, status context, duration review criteria, and exception evidence are summarized below. |
 
 ## Dataset row-count baseline
@@ -156,3 +156,11 @@ The clean-view SQL explains the staging-to-clean behavior: it excludes missing r
 ## Summary
 
 Order IDs are unique in the raw source and staged/clean order data, and every raw and staged order customer reference checked matched a customer row. Review IDs have 789 duplicate groups (814 excess rows), removed as expected in `reviews_clean`. Raw item-to-order and item-to-product references match, while staged and clean checks each retain one orphan for each relationship. Raw review-to-order references match; staging/clean review references were not checked in the saved results. Thirteen raw products use two categories absent from the translation mapping. Four one-row raw-to-staging count differences remain unexplained. Timestamp validation found no missing purchase or estimated-delivery timestamps, no unparseable timestamp values, and no actual delivery before purchase; it flagged carrier chronology exceptions, eight delivered orders missing actual delivery timestamps, six canceled orders with actual-delivery timestamps, and 965 unusually long durations for investigation. Late deliveries and missing timestamps on non-delivered orders are retained as business/status context, not automatically treated as defects. These gaps and all query/source evidence are recorded above; no source records were altered or deleted.
+
+## Automated validation test results
+
+Tests are implemented in [`tests/test_data_validation.py`](../../tests/test_data_validation.py) and run with Python's standard-library `unittest`; no test-framework dependency was added. The raw orders CSV is validated for required columns, nonblank unique order IDs, and customer delivery timestamps that do not precede purchase. Controlled cases cover duplicate detection, timestamp-sequence ordering, and the rule that missing actual or estimated delivery timestamps produce an unknown on-time result rather than an on-time result.
+
+**Command:** `python -m unittest discover -s tests -v`
+**Result:** 7 tests run in 4.436 seconds; 6 passed, 1 skipped, 0 failed (`OK (skipped=1)`).
+**Skipped check:** Final order-level row count versus distinct `order_id` count.SQL export is not present; the test expects it at `data/interim/final_order_level.csv`. The check will run automatically once that file is supplied.
