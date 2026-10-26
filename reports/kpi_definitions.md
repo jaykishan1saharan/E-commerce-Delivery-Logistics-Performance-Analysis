@@ -1,8 +1,8 @@
 Week 2 — KPI Definitions and Analytical Data Contract
 Project: E-commerce Delivery & Logistics Performance Analysis
-Phase: Week 2, Day 4
+Phase: Week 2, Day 5
 Owner: Member 3 — KPI Specification
-Status: Thursday acceptance checks and source-column requirements documented; cross-member schema review and technical verification pending
+Status: Friday final review version; team sign-off and technical verification pending where evidence is not yet available
 1. Purpose
 This document defines the business meaning, formulas, eligible populations, source fields, missing-data rules, and validation requirements for the project's analytical KPIs.
 
@@ -363,10 +363,25 @@ The following checks must be completed before the corresponding KPI implementati
 - Member 5: Coordinate documentation and record approved team decisions.
 9. Final Status
 Deliverable: KPI Definitions and Analytical Data Contract
-Current status: Thursday acceptance checks and required source-column contract documented; cross-member review and technical verification pending.
+Current status: Friday final review version prepared; team sign-off and technical verification remain pending where not evidenced.
 
-This version adds explicit acceptance checks for the seven KPIs and a minimum source-column contract for the core analytical calculations. It does not claim that Members 1 and 2 have confirmed the final SQL/Python schema or that the KPIs have been technically validated. The current observed order population is 99,441 unique orders, subject to any exclusions established by documented data-quality validation.
+This Friday version consolidates the KPI business rules, edge cases, acceptance checks, and required source-column contract. It is intended as the final specification for team review; it does not claim that Members 1 and 2 have confirmed the final SQL/Python schema or that the KPI calculations have been technically validated.
 
-Before the KPIs are marked as technically validated, the team must verify the remaining source-column mappings, confirm the operational interpretation of the carrier-related timestamp, validate analytical joins and the one-row-per-order grain, and reconcile SQL and Python results. Any changes to the documented business definitions must be recorded explicitly.
+The latest observed order-view evidence recorded in this document is 99,441 rows, 99,441 distinct order IDs, and zero missing order IDs. Treat these as previously observed results, not as a fresh Friday execution. Any exclusions must be supported by documented data-quality evidence.
+9.1 Friday finalization checklist
+- [ ] Member 1 confirms the final SQL analytical output fields, aliases, order grain, and KPI queries.
+- [ ] Member 2 confirms the Python loader uses the canonical MySQL source or verified exports and maps to the agreed fields.
+- [ ] Members 1 and 2 review the KPI formulas, eligibility rules, units, and missing-data behavior with Member 3.
+- [ ] Member 4's validation findings are reviewed; passed, failed, unavailable, and unresolved checks remain distinct.
+- [ ] The carrier-related timestamp's operational meaning is confirmed or retained as an explicitly limited proxy.
+- [ ] Any unresolved source limitations or agreed changes are recorded in this document.
+- [ ] The final document is checked with git diff --check, committed, and pushed to the assigned branch.
+9.2 Unresolved limitations (do not mark as passed without evidence)
+1. The exact operational meaning of order_delivered_carrier_date still requires confirmation.
+2. Customer, review, item, product, and translation mappings must be checked against the final analytical output and actual query results.
+3. The final SQL-to-Python input interface and field aliases require confirmation by Members 1 and 2.
+4. SQL/Python KPI result reconciliation and post-join order-grain checks require actual execution evidence.
+5. The review-row difference of 314 is not itself the count of orders with multiple reviews; the exact affected-order count must be queried.
+When the team confirms these items, record the confirmation and supporting evidence before changing the status to technically validated. Until then, the business definitions are documented, while technical verification and cross-member approval remain pending.
 
 After team review and source-schema confirmation, the agreed definitions should be used consistently by SQL, Python, analytical reports, and the eventual Power BI dashboard.
