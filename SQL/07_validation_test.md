@@ -1,26 +1,36 @@
-
 # Baseline Data Quality Validation Test
 
-## Validation file
-`sql/07_validation.sql`
+**Database:** `ecommerce_delivery` (MySQL)  
+**Table:** `olist_orders_dataset`
 
-## Checks performed
-- [ ] Row counts for staging and clean orders
-- [ ] Missing and duplicate order IDs
-- [ ] Unique order ID count
-- [ ] Missing key timestamps for delivered orders
-- [ ] Order status distribution
+## Validation Results
 
-## Baseline expectations
-- Total clean orders: 99,441
-- Unique order IDs: 99,441
-- Missing order IDs: 0
-- Duplicate order IDs: 0
-- Delivered orders: 96,478
-- Canceled orders: 625
+| Check | Actual Result | Status |
+|---|---:|---|
+| Total order rows | 99,441 | PASS |
+| Unique order IDs | 99,441 | PASS |
+| Duplicate order IDs | 0 | PASS |
+| Missing order IDs | 0 | PASS |
+| Missing purchase timestamps | 0 | PASS |
+| Delivered orders missing delivery dates | 0 | PASS |
+| Order status distribution total | 99,441 | PASS |
 
-## Test results
-Record actual SQL outputs and mark each check PASS or INVESTIGATE.
+## Order Status Distribution
 
-## Status
-Pending execution against the project database.
+| Order Status | Count |
+|---|---:|
+| delivered | 96,478 |
+| shipped | 1,107 |
+| canceled | 625 |
+| unavailable | 609 |
+| invoiced | 314 |
+| processing | 301 |
+| created | 5 |
+| approved | 2 |
+| **Total** | **99,441** |
+
+## Conclusion
+
+All listed baseline validation checks passed based on the MySQL query results obtained.
+
+The checks cover row counts, order ID uniqueness, missing key fields, and order status distribution.
