@@ -1,8 +1,23 @@
+
 # Generated database and Python caches
 delivery_analysis.db
+*.db
+*.sqlite
+*.sqlite3
 __pycache__/
-*.pyc
+*.py[cod]
 .ipynb_checkpoints/
+
+# Python virtual environments
 .venv/
 venv/
+env/
+
+# Operating system and editor files
 .DS_Store
+.vscode/
+.idea/
+
+# Local exports and temporary files
+*.tmp
+*.log

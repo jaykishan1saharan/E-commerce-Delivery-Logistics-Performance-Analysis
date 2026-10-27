@@ -4,9 +4,9 @@ import pandas as pd
 from pathlib import Path
 
 # Project folder
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data" / "raw"
-DB_PATH = BASE_DIR / "delivery_analysis.db"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_DIR = PROJECT_ROOT / "data" / "raw"
+DB_PATH = PROJECT_ROOT / "delivery_analysis.db"
 
 # CSV files to import
 files = {
