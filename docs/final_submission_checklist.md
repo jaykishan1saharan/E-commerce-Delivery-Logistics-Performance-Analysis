@@ -35,6 +35,13 @@ Do not mark an item complete until the corresponding file, output, or GitHub sta
 - [ ] Recommendations are supported by findings and do not claim causation without evidence.
 - [ ] README links and paths have been tested.
 
+## Week 3 Day 1 follow-up (27 October 2026)
+- [ ] Lav Kumar daily log, decision log, and checklist are pushed on `LavKumar` and submitted via PR to `main`.
+- [ ] Meghana confirms review/fixes for `sql/07_validation.sql` and PR status.
+- [ ] Madhupriya confirms the dashboard guide and dashboard artifact and PR status.
+- [ ] Jaykishan notebook presence and execution are verified.
+- [ ] Yashashvi SQL analysis and baseline KPI outputs are verified.
+
 ## GitHub delivery
 - [ ] Member contributions are committed on the correct branches.
 - [ ] Pull requests have been reviewed and merged as required by the team.

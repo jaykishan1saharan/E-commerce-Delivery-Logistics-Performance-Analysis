@@ -1,7 +1,7 @@
 # Meeting Notes and Team Handoffs
 
 ## Week 3 — Day 1 handoff
-**Date:** 26–27 October 2026  
+**Date:** 27 October 2026 (messages from 12:17 AM to 1:29 AM)  
 **Source:** Team updates shared in project chat.
 
 ### Reported progress
@@ -19,8 +19,8 @@
 ### Action items
 | Action | Owner | Status |
 |---|---|---|
-| Review and fix validation SQL issues | Validation owner / reviewer | Confirm outcome |
+| Review and fix validation SQL issues | Meghana / reviewer | Requested by team lead; outcome not confirmed |
 | Verify notebook execution and saved outputs | Python analysis owner | Pending verification |
-| Verify Power BI file and guide | Dashboard owner | Pending verification |
-| Maintain daily log, decision log, and checklist | Lav Kumar | Ongoing |
+| Verify Power BI file and guide | Madhupriya | Reported complete; PR/merge status pending verification |
+| Maintain daily log, decision log, and checklist | Lav Kumar | Assigned; update and PR to `main` required |
 | Reconcile conflicting KPI counts and definitions | SQL/Python/dashboard owners | Open |
