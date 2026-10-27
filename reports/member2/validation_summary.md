@@ -1,34 +1,21 @@
-# Friday Validation Summary
+## Day 2 — Join Grain and Segment Validation
 
-## Dataset integrity
-- Source: `data\interim\kpi_orders.csv`
-- Rows: 99441
-- Unique order IDs: 99441
-- Duplicate order IDs: 0
-- Missing order IDs: 0
-- One row per order: PASS
+### Join validation
+- Orders: 99,441 unique order IDs.
+- Order items: 112,650 rows and 112,650 unique `(order_id, order_item_id)` pairs.
+- Orders-to-items LEFT JOIN: 113,425 rows, retaining all 99,441 orders and all 112,650 order-item rows.
+- Unmatched orders: 775.
 
-## Delivery KPI checks
-- Delivered orders: 96478
-- Cancelled orders: 625
-- Late by calendar-date rule: 6534
-- Late by existing flags: 6534
-- Eligible delivered orders: 96470
+### Segment denominator validation
+- Verified that total order counts match distinct order IDs for every order-status segment.
+- Validation: PASS.
 
-## Missing values
-- `order_approved_at`: 160
-- `order_delivered_carrier_date`: 1783
-- `order_delivered_customer_date`: 2965
-- `approval_days`: 160
-- `carrier_handoff_days`: 1797
-- `delivery_days`: 2965
+### Small-sample validation
+- Proposed threshold: `n < 30` (pending team agreement).
+- `approved`: n = 2, small-sample flag = 1.
+- `created`: n = 5, small-sample flag = 1.
+- All other order-status segments: flag = 0.
 
-## Outstanding items
-- Review the timestamp_validation.csv output.
-- Reconcile date-based late counts with existing flags.
-- Populate SQL values only from verified SQL query results.
-- Compare SQL and Python using identical definitions and filters.
-
-## Reproduction
-- Run `python run_analysis.py`
-- Run `python validate_friday.py`
+### Status
+- SQL validation completed.
+- Small-sample threshold pending team agreement.
