@@ -1,0 +1,6 @@
+region,total_orders,eligible_delivered_orders,late_orders,late_delivery_rate_pct
+Southeast,52028,50447,3715,7.36
+Northeast,7203,6951,990,14.24
+South,10786,10528,744,7.07
+Central-West,4400,4282,358,8.36
+North,1423,1376,133,9.67

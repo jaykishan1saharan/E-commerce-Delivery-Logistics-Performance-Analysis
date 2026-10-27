@@ -628,3 +628,134 @@ LIMIT 100;
 - Business Insights and Data Interpretation: Established rules for calculating KPIs, handling missing values, avoiding duplicate counts, and distinguishing correlation from causation.
 Overall objective: To transform raw e-commerce data into reliable analytical insights, identify delivery and operational inefficiencies, understand customer satisfaction, and prepare the foundation for a Power BI dashboard and a professional Data Analyst portfolio project.
 */
+
+
+-- ============================================================
+-- DAY 2: REGIONAL AND PRODUCT-CATEGORY DEEP ANALYSIS
+-- Owner: Member 1 - Yashashvi Yash
+-- Source: vw_order_level_analytics
+-- ============================================================
+
+-- 11A. DELIVERY PERFORMANCE BY CUSTOMER STATE
+-- Compare late rate, order volume, and average delay.
+CREATE OR REPLACE VIEW vw_order_level_analytics AS
+SELECT
+    o.order_id,
+    o.order_status,
+    c.customer_state,
+
+    CASE
+        WHEN c.customer_state IN ('AM','RR','AP','PA','TO','RO','AC')
+            THEN 'North'
+        WHEN c.customer_state IN ('MA','PI','CE','RN','PB','PE','AL','SE','BA')
+            THEN 'Northeast'
+        WHEN c.customer_state IN ('MT','MS','GO','DF')
+            THEN 'Central-West'
+        WHEN c.customer_state IN ('SP','RJ','MG','ES')
+            THEN 'Southeast'
+        WHEN c.customer_state IN ('PR','SC','RS')
+            THEN 'South'
+        ELSE 'Unknown'
+    END AS region,
+
+    CAST(NULLIF(o.order_purchase_timestamp, '') AS DATETIME)
+        AS order_purchase_timestamp,
+
+    DAYOFWEEK(
+        CAST(NULLIF(o.order_purchase_timestamp, '') AS DATETIME)
+    ) AS weekday_num,
+
+    DAYNAME(
+        CAST(NULLIF(o.order_purchase_timestamp, '') AS DATETIME)
+    ) AS weekday,
+
+    ib.category,
+    COALESCE(ib.n_items, 0) AS n_items,
+    ib.order_value,
+    ib.freight_total,
+    rb.review_score,
+
+    DATEDIFF(
+        CAST(NULLIF(o.order_approved_at, '') AS DATETIME),
+        CAST(NULLIF(o.order_purchase_timestamp, '') AS DATETIME)
+    ) AS approval_days,
+
+    DATEDIFF(
+        CAST(NULLIF(o.order_delivered_carrier_date, '') AS DATETIME),
+        CAST(NULLIF(o.order_approved_at, '') AS DATETIME)
+    ) AS handling_days,
+
+    DATEDIFF(
+        CAST(NULLIF(o.order_delivered_customer_date, '') AS DATETIME),
+        CAST(NULLIF(o.order_purchase_timestamp, '') AS DATETIME)
+    ) AS delivery_days,
+
+    DATEDIFF(
+        CAST(NULLIF(o.order_delivered_customer_date, '') AS DATETIME),
+        CAST(NULLIF(o.order_estimated_delivery_date, '') AS DATETIME)
+    ) AS delay_days,
+
+    CASE
+        WHEN o.order_status = 'delivered'
+         AND NULLIF(o.order_delivered_customer_date, '') IS NOT NULL
+         AND NULLIF(o.order_estimated_delivery_date, '') IS NOT NULL
+        THEN CASE
+            WHEN CAST(o.order_delivered_customer_date AS DATETIME)
+                 <= CAST(o.order_estimated_delivery_date AS DATETIME)
+            THEN 1
+            ELSE 0
+        END
+        ELSE NULL
+    END AS is_on_time,
+
+    CASE WHEN o.order_status = 'canceled' THEN 1 ELSE 0 END
+        AS is_canceled,
+
+    CASE
+        WHEN rb.review_score IS NULL THEN NULL
+        WHEN rb.review_score <= 2 THEN 1
+        ELSE 0
+    END AS is_low_rating
+
+FROM orders o
+
+LEFT JOIN customers c
+    ON c.customer_id = o.customer_id
+
+LEFT JOIN (
+    SELECT
+        i.order_id,
+        COUNT(*) AS n_items,
+        SUM(COALESCE(i.price, 0)) AS order_value,
+        SUM(COALESCE(i.freight_value, 0)) AS freight_total,
+        GROUP_CONCAT(
+            DISTINCT COALESCE(
+                NULLIF(t.product_category_name_english, ''),
+                NULLIF(p.product_category_name, ''),
+                'Unknown'
+            )
+            SEPARATOR ', '
+        ) AS category
+    FROM items i
+    LEFT JOIN products p
+        ON p.product_id = i.product_id
+    LEFT JOIN translation t
+        ON t.product_category_name = p.product_category_name
+    GROUP BY i.order_id
+) ib
+    ON ib.order_id = o.order_id
+
+LEFT JOIN (
+    SELECT
+        order_id,
+        AVG(
+            CASE
+                WHEN review_score BETWEEN 1 AND 5
+                THEN review_score
+            END
+        ) AS review_score
+    FROM reviews
+    GROUP BY order_id
+) rb
+    ON rb.order_id = o.order_id;
+
