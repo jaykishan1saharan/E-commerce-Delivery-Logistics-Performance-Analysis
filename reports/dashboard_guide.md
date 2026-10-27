@@ -1,8 +1,14 @@
 # Power BI Dashboard Guide
 
-**Status:** Initial PBIP shell; source binding, semantic model, measures, visuals, and validation are pending.
+**Status:** Initial PBIP shell; source binding, semantic model tables, measures, visuals, and validation are pending.
 
-The project entry point is [`../E-commerce-Delivery-Logistics-Dashboard.pbip`](../E-commerce-Delivery-Logistics-Dashboard.pbip). It contains five blank report pages and an empty semantic model. Open it in a current version of Power BI Desktop to continue authoring. The shell intentionally has no machine-specific file paths, credentials, measures, or visuals.
+The project entry point is [`../E-commerce-Delivery-Logistics-Dashboard.pbip`](../E-commerce-Delivery-Logistics-Dashboard.pbip). Its PBIR report definition contains five blank pages in the order listed below, and its semantic model is intentionally empty and unbound. Open it in a current version of Power BI Desktop to continue authoring. The shell intentionally has no machine-specific file paths, credentials, measures, or visuals. Bind a source only after the canonical input and its schema have been confirmed.
+
+## Week 3 regional and segment draft
+
+Open the completed [`../powerbi/week3_delivery_dashboard.pbix`](../powerbi/week3_delivery_dashboard.pbix) in Power BI Desktop. Its source project is [`../powerbi/week3_delivery_dashboard.pbip`](../powerbi/week3_delivery_dashboard.pbip). The page compares unique order volume by region and category, average exported delivery days by region, monthly order volume, and source order status. The average-delivery measure includes delivered orders with non-negative exported `delivery_days`; it is explicitly provisional because the canonical source and duration implementation are not signed off. On-time performance is not visualized because the exported flag has not been validated against the calendar-date rule.
+
+The imported snapshot uses `data/interim/kpi_orders_all.csv` at the path recorded in the source project's `Orders.tmdl` partition. If the PBIP source project is opened from another checkout, update its `File.Contents` path before refreshing. The PBIX contains an imported snapshot; refreshing the binary from another location may likewise require updating its Power Query source path.
 
 ## Planned pages
 
@@ -47,4 +53,3 @@ The two KPI exports have matching headers in the snapshot examined: `order_id`, 
 - Existing tables and figures under `reports/` are preliminary analysis outputs, not canonical model inputs.
 
 See [`kpi_definitions.md`](kpi_definitions.md), [`data_quality/data_validation_summary.md`](data_quality/data_validation_summary.md), and [`integration/data_contract.md`](integration/data_contract.md) for definitions, evidence, and outstanding source decisions.
-

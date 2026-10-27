@@ -1,0 +1,199 @@
+table Orders
+    lineageTag: 00000000-0000-0000-0000-000000000100
+
+    column order_id
+        dataType: string
+        isKey
+        lineageTag: 00000000-0000-0000-0000-000000000101
+        summarizeBy: none
+        sourceColumn: order_id
+
+        annotation SummarizationSetBy = Automatic
+
+    column order_status
+        dataType: string
+        lineageTag: 00000000-0000-0000-0000-000000000102
+        summarizeBy: none
+        sourceColumn: order_status
+
+        annotation SummarizationSetBy = Automatic
+
+    column customer_state
+        dataType: string
+        lineageTag: 00000000-0000-0000-0000-000000000103
+        summarizeBy: none
+        sourceColumn: customer_state
+
+        annotation SummarizationSetBy = Automatic
+
+    column region
+        dataType: string
+        lineageTag: 00000000-0000-0000-0000-000000000104
+        summarizeBy: none
+        sourceColumn: region
+
+        annotation SummarizationSetBy = Automatic
+
+    column order_purchase_timestamp
+        dataType: dateTime
+        formatString: General Date
+        lineageTag: 00000000-0000-0000-0000-000000000105
+        summarizeBy: none
+        sourceColumn: order_purchase_timestamp
+
+        annotation SummarizationSetBy = Automatic
+
+    column weekday_num
+        dataType: int64
+        formatString: 0
+        lineageTag: 00000000-0000-0000-0000-000000000106
+        summarizeBy: sum
+        sourceColumn: weekday_num
+
+        annotation SummarizationSetBy = Automatic
+
+    column weekday
+        dataType: string
+        lineageTag: 00000000-0000-0000-0000-000000000107
+        summarizeBy: none
+        sourceColumn: weekday
+
+        annotation SummarizationSetBy = Automatic
+
+    column category
+        dataType: string
+        lineageTag: 00000000-0000-0000-0000-000000000108
+        summarizeBy: none
+        sourceColumn: category
+
+        annotation SummarizationSetBy = Automatic
+
+    column n_items
+        dataType: double
+        formatString: 0.0
+        lineageTag: 00000000-0000-0000-0000-000000000109
+        summarizeBy: sum
+        sourceColumn: n_items
+
+        annotation SummarizationSetBy = Automatic
+
+    column order_value
+        dataType: double
+        formatString: #,0.00
+        lineageTag: 00000000-0000-0000-0000-000000000110
+        summarizeBy: sum
+        sourceColumn: order_value
+
+        annotation SummarizationSetBy = Automatic
+
+    column freight_total
+        dataType: double
+        formatString: #,0.00
+        lineageTag: 00000000-0000-0000-0000-000000000111
+        summarizeBy: sum
+        sourceColumn: freight_total
+
+        annotation SummarizationSetBy = Automatic
+
+    column review_score
+        dataType: double
+        formatString: 0.0
+        lineageTag: 00000000-0000-0000-0000-000000000112
+        summarizeBy: average
+        sourceColumn: review_score
+
+        annotation SummarizationSetBy = Automatic
+
+    column approval_days
+        dataType: double
+        formatString: 0.00
+        lineageTag: 00000000-0000-0000-0000-000000000113
+        summarizeBy: average
+        sourceColumn: approval_days
+
+        annotation SummarizationSetBy = Automatic
+
+    column handling_days
+        dataType: double
+        formatString: 0.00
+        lineageTag: 00000000-0000-0000-0000-000000000114
+        summarizeBy: average
+        sourceColumn: handling_days
+
+        annotation SummarizationSetBy = Automatic
+
+    column delivery_days
+        dataType: double
+        formatString: 0.00
+        lineageTag: 00000000-0000-0000-0000-000000000115
+        summarizeBy: average
+        sourceColumn: delivery_days
+
+        annotation SummarizationSetBy = Automatic
+
+    column delay_days
+        dataType: double
+        formatString: 0.00
+        lineageTag: 00000000-0000-0000-0000-000000000116
+        summarizeBy: average
+        sourceColumn: delay_days
+
+        annotation SummarizationSetBy = Automatic
+
+    column is_on_time
+        dataType: double
+        isHidden
+        lineageTag: 00000000-0000-0000-0000-000000000117
+        summarizeBy: none
+        sourceColumn: is_on_time
+
+        annotation SummarizationSetBy = Automatic
+
+    column is_canceled
+        dataType: double
+        isHidden
+        lineageTag: 00000000-0000-0000-0000-000000000118
+        summarizeBy: none
+        sourceColumn: is_canceled
+
+        annotation SummarizationSetBy = Automatic
+
+    column is_low_rating
+        dataType: double
+        isHidden
+        lineageTag: 00000000-0000-0000-0000-000000000119
+        summarizeBy: none
+        sourceColumn: is_low_rating
+
+        annotation SummarizationSetBy = Automatic
+
+    column purchase_month
+        dataType: string
+        lineageTag: 00000000-0000-0000-0000-000000000120
+        summarizeBy: none
+        sourceColumn: purchase_month
+
+        annotation SummarizationSetBy = Automatic
+
+    measure 'Unique Orders' = DISTINCTCOUNT ( Orders[order_id] )
+        formatString: #,0
+        lineageTag: 00000000-0000-0000-0000-000000000121
+
+    measure 'Average Delivery Days (Provisional)' = CALCULATE ( AVERAGE ( Orders[delivery_days] ), Orders[order_status] = "delivered", Orders[delivery_days] >= 0 )
+        formatString: 0.0
+        lineageTag: 00000000-0000-0000-0000-000000000122
+
+    partition Orders = m
+        mode: import
+        source =
+                let
+                    Source = Csv.Document(File.Contents("C:\src\E-commerce-Delivery-Logistics-Performance-Analysis\data\interim\kpi_orders_all.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+                    PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+                    BlankToNull = Table.ReplaceValue(PromotedHeaders, "", null, Replacer.ReplaceValue, Table.ColumnNames(PromotedHeaders)),
+                    Typed = Table.TransformColumnTypes(BlankToNull, {{"order_id", type text}, {"order_status", type text}, {"customer_state", type text}, {"region", type text}, {"order_purchase_timestamp", type datetime}, {"weekday_num", Int64.Type}, {"weekday", type text}, {"category", type text}, {"n_items", type number}, {"order_value", type number}, {"freight_total", type number}, {"review_score", type number}, {"approval_days", type number}, {"handling_days", type number}, {"delivery_days", type number}, {"delay_days", type number}, {"is_on_time", type number}, {"is_canceled", type number}, {"is_low_rating", type number}}),
+                    UnclassifiedCategory = Table.ReplaceValue(Typed, null, "Unclassified", Replacer.ReplaceValue, {"category"}),
+                    PurchaseMonth = Table.AddColumn(UnclassifiedCategory, "purchase_month", each if [order_purchase_timestamp] = null then null else Date.ToText(Date.StartOfMonth(DateTime.Date([order_purchase_timestamp])), "yyyy-MM"), type text)
+                in
+                    PurchaseMonth
+
+    annotation PBI_ResultType = Table
