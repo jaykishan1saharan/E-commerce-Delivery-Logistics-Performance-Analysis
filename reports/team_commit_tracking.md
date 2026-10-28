@@ -105,3 +105,24 @@ This document records the four members’ GitHub commits, the work described by 
 - Team contribution documentation: `reports/team_commit_tracking.md`
 - Meghana's and Madhupriya's branches have not been merged into `LavKumar`.
 - The consolidated documentation still needs to be committed and pushed, then submitted through a pull request to `main`.
+
+## Wednesday Commit Review — 28 October 2026
+
+This section supplements the earlier commit history and does not replace older entries.
+
+| Member | Branch | Commit | Evidence | Assessment |
+|---|---|---|---|---|
+| Yashashvi | `YY-M1` | New Wednesday commit not yet confirmed | She said she will commit on 29 October | Pending |
+| Meghana | `analysis` | `c1abc4a` | `validate_flags.py`, `reports/member2/flag_validation.csv`, `reports/member2/validation_summary.md` | Commit confirmed; validation details need inspection |
+| Jaykishan | `jaykishan` | `60a1478` | Monthly trend chart, Week 3 notebook, chart notes | Commit and filenames confirmed; content review pending |
+| Madhupriya | `madhupriya/validation` | `f0648f0` | Dashboard visuals, PBIX file, dashboard guide, metric definitions | Commit and filenames confirmed; content review pending |
+| Lav Kumar | `LavKumar` | Documentation update being prepared | Progress, decision, limitation, and tracking records | In progress |
+
+### Integration policy
+- Continue working on `LavKumar`.
+- Do not merge entire member branches for this documentation task.
+- Review the relevant code, outputs, and dashboard measures before accepting the deliverables.
+- Open a pull request from `LavKumar` to `main` after reviewing and pushing the documentation.
+
+### Next review — 29 October 2026
+Check Yashashvi's branch, inspect outstanding validation and dashboard evidence, and update this tracker when new evidence is available.
