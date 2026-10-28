@@ -1,0 +1,3 @@
+check,rows_checked,expected_true,stored_true,mismatches,status,rule
+on_time_eligible,99441,96470,96470,0,PASS,Delivered status and both timestamps present
+on_time,99441,89936,89936,0,PASS,Eligible and actual calendar date on or before estimated calendar date
