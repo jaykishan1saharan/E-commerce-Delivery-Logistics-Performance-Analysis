@@ -25,3 +25,27 @@ Owner: Member 3 — Jaykisan Saharan
 - Missing/unknown on-time flags are excluded from the late-rate denominator.
 - Non-delivered orders are excluded from both delivery performance charts.
 - These figures are exploratory, not final validated findings. Do not infer causation from category/state differences.
+
+
+# Chart Notes — Wednesday: Time Trends
+
+## `charts/monthly_delivery_trend.png`
+- **Source:** `data/interim/kpi_orders.csv` (aggregate order-level export).
+- **Period:** 2016-09 to 2018-08.
+- **Population:** rows with `order_status = delivered`, a valid `order_purchase_timestamp`, and non-missing `delivery_days`.
+- **Metric 1:** monthly average `delivery_days`; each point is the mean for the month.
+- **Metric 2:** monthly on-time rate, calculated as the mean of `is_on_time` among eligible delivered orders, shown as a percentage.
+- **Volume context:** monthly eligible order counts are calculated in the notebook's `monthly` table; interpret rate changes alongside sample size.
+
+## Initial observations
+- Highest monthly average delivery time: 2016-09 (54.81 days; 1 orders).
+- Lowest monthly average delivery time: 2016-12 (4.69 days; 1 orders).
+- These are descriptive comparisons; they do not establish causes.
+
+## `processing_vs_transit.png`
+Not generated. The available export contains `approval_days`, `handling_days`, and `delivery_days`, but no carrier handoff timestamp. Without a validated handoff event and agreed definitions, processing time versus transit time cannot be separated reliably. Do not infer transit time by subtracting potentially overlapping fields.
+
+## Limitations and checks
+- The source export has 96,470 rows and its observed `order_status` is delivered for all rows; it is not a complete status history.
+- Reconcile monthly counts and rates against the validated SQL output before final submission.
+- Confirm that `delivery_days` and `is_on_time` definitions match the team metric definitions.
