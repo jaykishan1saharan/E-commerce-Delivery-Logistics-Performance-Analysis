@@ -6,11 +6,11 @@
     "y": 376,
     "z": 3,
     "height": 386,
-    "width": 856,
+    "width": 430,
     "tabOrder": 3
   },
   "visual": {
-    "visualType": "clusteredColumnChart",
+    "visualType": "lineChart",
     "query": {
       "queryState": {
         "Category": {
