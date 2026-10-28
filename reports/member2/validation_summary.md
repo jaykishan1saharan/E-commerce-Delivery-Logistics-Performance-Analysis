@@ -1,27 +1,19 @@
-## Delivery Timestamp and Duration Validation
+## Follow-up: Delivery Timestamp and Duration Exceptions
 
-**Dataset:** `data/interim/kpi_orders.csv`  
-**Total records:** 99,441
+### 1. Delivered orders with missing timestamps
 
-### Validation Results
+Investigated 8 orders marked `delivered` with missing customer-delivery timestamps. All 8 records were found in `data/raw/olist_orders_dataset.csv`, with matching statuses and missing delivery timestamps in the processed KPI data. Seven orders have carrier-handoff timestamps; one lacks both carrier-handoff and customer-delivery timestamps. All 8 have estimated delivery dates.
 
-- **Timestamp parsing:** No invalid nonblank purchase or delivery timestamps found.
-- **Timestamp completeness:** 96,470 of 96,478 delivered orders have customer delivery timestamps. Eight delivered orders require investigation.
-- **Missing timestamps by status:** Missing values were also identified among orders that were not delivered. Six canceled orders have delivery timestamps.
-- **Negative and zero durations:** No negative or zero timestamp-derived delivery durations found.
-- **Duration consistency:** All 96,476 comparable recorded durations matched calculated durations within 0.001 days.
-- **Long-duration outliers:** 77 deliveries exceeded 90 days. The longest recorded duration was approximately 209.63 days. These records require further review.
-- **Monthly trend impact:** Removing durations exceeding 90 days for sensitivity analysis produced the largest average reduction in March 2017: 0.79 days.
-- **Monthly completeness:** Reported monthly delivery-duration completeness ranged from 99.95% to 100%.
+**Conclusion:** The missing timestamps are present in the original source data. The actual delivery completion and reason for missing timestamps could not be independently verified. Records were retained without imputation or deletion.
 
-### Output Files
+### 2. Deliveries exceeding 90 days
 
-- `reports/member2/monthly_delivery_validation.csv`
-- `reports/member2/delivery_over_90_days.csv`
-- `reports/member2/monthly_trend_impact.csv`
+Investigated 77 deliveries with calculated durations exceeding 90 days. All 77 orders matched the original source dataset, with zero status mismatches and zero delivery-timestamp mismatches.
 
-### Conclusion
+The recorded delivery dates show a concentration of 24 orders on 2017-09-19. The delays beyond estimated delivery dates range from 38 to 188 days, with a mean of 106.77 days and a median of 104 days.
 
-Timestamp parsing and duration consistency checks passed. Eight delivered orders have missing delivery timestamps, and 77 unusually long delivery durations require investigation. Long-duration records influence monthly averages, particularly in March 2017. Missing-record bias has not been fully ruled out; results should be interpreted alongside completeness and sample counts.
+**Conclusion:** The long durations are consistent between the source and processed files, but their real-world validity has not been independently established. The repeated-date pattern is a potential source-data anomaly requiring further investigation. No records were removed or altered based solely on duration.
 
-**Overall status:** Validation executed; exceptions documented; further investigation required.
+### Overall assessment
+
+Timestamp parsing passed, and no negative or zero delivery durations were identified in the validation checks. Monthly timestamp completeness ranged from 99.95% to 100%. However, the 8 missing delivery timestamps and 77 unusually long deliveries remain documented data-quality exceptions. Delivery-duration trends should be interpreted with these limitations in mind.
