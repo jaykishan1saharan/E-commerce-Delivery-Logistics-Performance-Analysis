@@ -1,0 +1,6 @@
+column,valid_timestamps,missing_values,invalid_nonblank
+order_purchase_timestamp,99441,0,0
+order_approved_at,99281,160,0
+order_delivered_carrier_date,97658,1783,0
+order_delivered_customer_date,96476,2965,0
+order_estimated_delivery_date,99441,0,0

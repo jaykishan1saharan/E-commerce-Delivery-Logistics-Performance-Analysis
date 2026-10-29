@@ -1,13 +1,17 @@
 
 import sqlite3
-import pandas as pd
-import matplotlib.pyplot as plt
 from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 REPORTS = PROJECT_ROOT / "reports"
 TABLES = REPORTS / "tables"
 FIGURES = REPORTS / "figures"
+
 TABLES.mkdir(parents=True, exist_ok=True)
 FIGURES.mkdir(parents=True, exist_ok=True)
 
@@ -30,8 +34,11 @@ with sqlite3.connect(PROJECT_ROOT / "delivery_analysis.db") as conn:
                 - JULIANDAY(order_purchase_timestamp), 2
             ) AS delivery_days,
             CASE
-                WHEN order_delivered_customer_date >
-                     order_estimated_delivery_date THEN 'Late'
+                WHEN order_estimated_delivery_date IS NULL
+                    THEN 'Unknown'
+                WHEN DATE(order_delivered_customer_date)
+                     > DATE(order_estimated_delivery_date)
+                    THEN 'Late'
                 ELSE 'On time or early'
             END AS delivery_status
         FROM orders
@@ -101,7 +108,7 @@ plt.tight_layout()
 plt.savefig(FIGURES / "review_score_distribution.png", dpi=150)
 plt.close()
 
-print("Member 4 results exported successfully!")
+print("Analysis results exported successfully!")
 print("CSV tables saved in:", TABLES)
 print("Charts saved in:", FIGURES)
 print("CSV reports: 4")
