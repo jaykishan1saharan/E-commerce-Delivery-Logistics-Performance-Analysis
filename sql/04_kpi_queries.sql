@@ -303,3 +303,319 @@ WHERE order_status = 'delivered'
 -- End of queries.
 -- Record actual query results and exceptions after execution.
 -- These checks do not delete or modify source records.
+-----Day 4 week 3 work starts here
+
+USE ecommerce_delivery;
+
+-- 1. Overall order KPIs
+SELECT
+    COUNT(*) AS total_orders,
+    SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END)
+        AS delivered_orders,
+    SUM(CASE WHEN order_status = 'canceled' THEN 1 ELSE 0 END)
+        AS canceled_orders,
+    ROUND(
+        100.0 * SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END)
+        / NULLIF(COUNT(*), 0), 2
+    ) AS delivered_order_pct,
+    ROUND(
+        100.0 * SUM(CASE WHEN order_status = 'canceled' THEN 1 ELSE 0 END)
+        / NULLIF(COUNT(*), 0), 2
+    ) AS canceled_order_pct
+FROM orders;
+
+
+-- 2. Delivery performance KPIs
+SELECT
+    COUNT(*) AS eligible_delivered_orders,
+    SUM(
+        CASE
+            WHEN STR_TO_DATE(
+                order_delivered_customer_date, '%Y-%m-%d %H:%i:%s'
+            ) >
+            STR_TO_DATE(
+                order_estimated_delivery_date, '%Y-%m-%d %H:%i:%s'
+            )
+            THEN 1 ELSE 0
+        END
+    ) AS late_orders,
+    ROUND(
+        100.0 * SUM(
+            CASE
+                WHEN STR_TO_DATE(
+                    order_delivered_customer_date, '%Y-%m-%d %H:%i:%s'
+                ) >
+                STR_TO_DATE(
+                    order_estimated_delivery_date, '%Y-%m-%d %H:%i:%s'
+                )
+                THEN 1 ELSE 0
+            END
+        ) / NULLIF(COUNT(*), 0), 2
+    ) AS late_delivery_rate_pct,
+    ROUND(AVG(
+        TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(
+                order_estimated_delivery_date, '%Y-%m-%d %H:%i:%s'
+            ),
+            STR_TO_DATE(
+                order_delivered_customer_date, '%Y-%m-%d %H:%i:%s'
+            )
+        ) / 86400.0
+    ), 2) AS avg_delay_days
+FROM orders
+WHERE order_status = 'delivered'
+  AND order_delivered_customer_date IS NOT NULL
+  AND order_delivered_customer_date <> ''
+  AND order_estimated_delivery_date IS NOT NULL
+  AND order_estimated_delivery_date <> ''
+  AND STR_TO_DATE(
+      order_delivered_customer_date, '%Y-%m-%d %H:%i:%s'
+  ) IS NOT NULL
+  AND STR_TO_DATE(
+      order_estimated_delivery_date, '%Y-%m-%d %H:%i:%s'
+  ) IS NOT NULL;
+
+
+-- 3. Average actual delivery duration
+SELECT
+    COUNT(*) AS eligible_orders,
+    ROUND(AVG(
+        TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s')
+        ) / 86400.0
+    ), 2) AS avg_delivery_days
+FROM orders
+WHERE order_status = 'delivered'
+  AND order_purchase_timestamp IS NOT NULL
+  AND order_purchase_timestamp <> ''
+  AND order_delivered_customer_date IS NOT NULL
+  AND order_delivered_customer_date <> ''
+  AND STR_TO_DATE(
+      order_purchase_timestamp, '%Y-%m-%d %H:%i:%s'
+  ) IS NOT NULL
+  AND STR_TO_DATE(
+      order_delivered_customer_date, '%Y-%m-%d %H:%i:%s'
+  ) IS NOT NULL;
+
+
+-- 4. Order volume by status
+SELECT
+    order_status,
+    COUNT(*) AS total_orders
+FROM orders
+GROUP BY order_status
+ORDER BY total_orders DESC;
+
+
+-- 5. Customer-state order distribution
+SELECT
+    c.customer_state,
+    COUNT(DISTINCT o.order_id) AS total_orders
+FROM orders o
+JOIN customers c
+    ON o.customer_id = c.customer_id
+GROUP BY c.customer_state
+ORDER BY total_orders DESC;
+
+
+SELECT
+    c.customer_state,
+    COUNT(DISTINCT o.order_id) AS total_orders,
+    COUNT(DISTINCT CASE
+        WHEN o.order_status = 'delivered'
+         AND STR_TO_DATE(o.order_delivered_customer_date,
+                         '%Y-%m-%d %H:%i:%s') IS NOT NULL
+         AND STR_TO_DATE(o.order_estimated_delivery_date,
+                         '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        THEN o.order_id
+    END) AS eligible_delivered_orders,
+    COUNT(DISTINCT CASE
+        WHEN o.order_status = 'delivered'
+         AND STR_TO_DATE(o.order_delivered_customer_date,
+                         '%Y-%m-%d %H:%i:%s')
+             > STR_TO_DATE(o.order_estimated_delivery_date,
+                           '%Y-%m-%d %H:%i:%s')
+        THEN o.order_id
+    END) AS late_orders,
+    ROUND(
+        100.0 * COUNT(DISTINCT CASE
+            WHEN o.order_status = 'delivered'
+             AND STR_TO_DATE(o.order_delivered_customer_date,
+                             '%Y-%m-%d %H:%i:%s')
+                 > STR_TO_DATE(o.order_estimated_delivery_date,
+                               '%Y-%m-%d %H:%i:%s')
+            THEN o.order_id
+        END)
+        / NULLIF(COUNT(DISTINCT CASE
+            WHEN o.order_status = 'delivered'
+             AND STR_TO_DATE(o.order_delivered_customer_date,
+                             '%Y-%m-%d %H:%i:%s') IS NOT NULL
+             AND STR_TO_DATE(o.order_estimated_delivery_date,
+                             '%Y-%m-%d %H:%i:%s') IS NOT NULL
+            THEN o.order_id
+        END), 0), 2
+    ) AS late_delivery_rate_pct,
+    ROUND(AVG(CASE
+        WHEN o.order_status = 'delivered'
+         AND STR_TO_DATE(o.order_delivered_customer_date,
+                         '%Y-%m-%d %H:%i:%s')
+             > STR_TO_DATE(o.order_estimated_delivery_date,
+                           '%Y-%m-%d %H:%i:%s')
+        THEN TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(o.order_estimated_delivery_date,
+                        '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(o.order_delivered_customer_date,
+                        '%Y-%m-%d %H:%i:%s')
+        ) / 86400.0
+    END), 2) AS avg_delay_days
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+GROUP BY c.customer_state
+ORDER BY late_delivery_rate_pct DESC;
+
+----REGION-WISE DELIVERY ANALYSIS
+---3. PRODUCT-CATEGORY DELIVERY ANALYSIS
+
+SELECT
+    COALESCE(
+        NULLIF(t.product_category_name_english, ''),
+        NULLIF(p.product_category_name, ''),
+        'Unknown'
+    ) AS product_category,
+    COUNT(DISTINCT o.order_id) AS total_orders,
+    COUNT(DISTINCT CASE
+        WHEN o.order_status = 'delivered'
+         AND STR_TO_DATE(o.order_delivered_customer_date,
+                         '%Y-%m-%d %H:%i:%s') IS NOT NULL
+         AND STR_TO_DATE(o.order_estimated_delivery_date,
+                         '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        THEN o.order_id
+    END) AS eligible_delivered_orders,
+    COUNT(DISTINCT CASE
+        WHEN o.order_status = 'delivered'
+         AND STR_TO_DATE(o.order_delivered_customer_date,
+                         '%Y-%m-%d %H:%i:%s')
+             > STR_TO_DATE(o.order_estimated_delivery_date,
+                           '%Y-%m-%d %H:%i:%s')
+        THEN o.order_id
+    END) AS late_orders,
+    ROUND(
+        100.0 * COUNT(DISTINCT CASE
+            WHEN o.order_status = 'delivered'
+             AND STR_TO_DATE(o.order_delivered_customer_date,
+                             '%Y-%m-%d %H:%i:%s')
+                 > STR_TO_DATE(o.order_estimated_delivery_date,
+                               '%Y-%m-%d %H:%i:%s')
+            THEN o.order_id
+        END)
+        / NULLIF(COUNT(DISTINCT CASE
+            WHEN o.order_status = 'delivered'
+             AND STR_TO_DATE(o.order_delivered_customer_date,
+                             '%Y-%m-%d %H:%i:%s') IS NOT NULL
+             AND STR_TO_DATE(o.order_estimated_delivery_date,
+                             '%Y-%m-%d %H:%i:%s') IS NOT NULL
+            THEN o.order_id
+        END), 0), 2
+    ) AS late_delivery_rate_pct
+FROM orders o
+JOIN items i ON o.order_id = i.order_id
+JOIN products p ON i.product_id = p.product_id
+LEFT JOIN translation t
+    ON p.product_category_name = t.product_category_name
+GROUP BY product_category
+ORDER BY late_delivery_rate_pct DESC;
+
+-- 4. MONTHLY ORDER TRENDS
+SELECT
+    DATE_FORMAT(
+        STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s'),
+        '%Y-%m'
+    ) AS purchase_month,
+    COUNT(*) AS total_orders,
+    SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END)
+        AS delivered_orders,
+    SUM(CASE WHEN order_status = 'canceled' THEN 1 ELSE 0 END)
+        AS canceled_orders,
+    ROUND(AVG(CASE
+        WHEN order_status = 'delivered'
+         AND STR_TO_DATE(order_delivered_customer_date,
+                         '%Y-%m-%d %H:%i:%s') IS NOT NULL
+         AND STR_TO_DATE(order_purchase_timestamp,
+                         '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        THEN TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s')
+        ) / 86400.0
+    END), 2) AS avg_delivery_days
+FROM orders
+WHERE STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+GROUP BY purchase_month
+ORDER BY purchase_month;
+-- 5. WEEKLY ORDER TRENDS
+SELECT
+    YEARWEEK(
+        STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s'),
+        3
+    ) AS purchase_year_week,
+    COUNT(*) AS total_orders,
+    SUM(CASE WHEN order_status = 'delivered' THEN 1 ELSE 0 END)
+        AS delivered_orders,
+    SUM(CASE WHEN order_status = 'canceled' THEN 1 ELSE 0 END)
+        AS canceled_orders,
+    ROUND(AVG(CASE
+        WHEN order_status = 'delivered'
+         AND STR_TO_DATE(order_delivered_customer_date,
+                         '%Y-%m-%d %H:%i:%s') IS NOT NULL
+         AND STR_TO_DATE(order_purchase_timestamp,
+                         '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        THEN TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s')
+        ) / 86400.0
+    END), 2) AS avg_delivery_days
+FROM orders
+WHERE STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+GROUP BY purchase_year_week
+ORDER BY purchase_year_week;
+
+-- 6. DELIVERY-STAGE DURATION ANALYSIS
+
+
+SELECT
+    ROUND(AVG(CASE
+        WHEN STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s')
+             >= STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s')
+        THEN TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s')
+        ) / 86400.0
+    END), 2) AS avg_purchase_to_approval_days,
+
+    ROUND(AVG(CASE
+        WHEN STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s')
+             >= STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s')
+        THEN TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s')
+        ) / 86400.0
+    END), 2) AS avg_approval_to_carrier_days,
+
+    ROUND(AVG(CASE
+        WHEN STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s')
+             >= STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s')
+        THEN TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s')
+        ) / 86400.0
+    END), 2) AS avg_carrier_to_customer_days
+FROM orders
+WHERE order_status = 'delivered';
