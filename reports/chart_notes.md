@@ -49,3 +49,54 @@ Not generated. The available export contains `approval_days`, `handling_days`, a
 - The source export has 96,470 rows and its observed `order_status` is delivered for all rows; it is not a complete status history.
 - Reconcile monthly counts and rates against the validated SQL output before final submission.
 - Confirm that `delivery_days` and `is_on_time` definitions match the team metric definitions.
+
+# Chart Notes — Week 3, Thursday (Day 4): Robustness and Verification
+
+**Owner:** Member 3 — Jaykisan Saharan
+
+## 1. Refreshed Chart Outputs
+
+- `charts/late_rate_by_state.png` — Shows the top 15 states by late-delivery rate, including eligible order counts.
+- `charts/delivery_delay_by_segment.png` — Shows the top 15 product categories by average delivery duration, including eligible order counts.
+- `charts/monthly_delivery_trend.png` — Shows monthly average delivery duration and on-time delivery rate.
+
+## 2. Data Source and Methodology
+
+**Source file:** `data/interim/kpi_orders.csv`
+
+Before refreshing the charts, the notebook checks the total row count, unique order IDs, duplicate order IDs, missing purchase timestamps, and order-status distribution.
+
+The calculations use the following definitions:
+
+- **Late-delivery rate by state:** Number of delivered orders with `is_on_time = 0`, divided by the number of distinct delivered orders with `is_on_time` equal to 0 or 1, multiplied by 100.
+- **Average delivery duration by category:** Mean `delivery_days` for distinct delivered orders with a non-missing numeric delivery duration.
+- **Monthly delivery trend:** Monthly average `delivery_days` and on-time delivery rate for distinct delivered orders with valid purchase timestamps and non-missing delivery duration.
+
+The notebook removes duplicate `order_id` values before grouping to reduce accidental inflation of order counts. The exact population, missing-value handling, and metric definitions must be checked against the team's validated SQL outputs.
+
+## 3. Validation Status and Limitations
+
+**SQL reconciliation status: Pending.**
+
+The charts are reproducible from the current interim CSV, but they have not yet been confirmed against the team's validated SQL aggregates.
+
+The following checks are required before final sign-off:
+
+- Confirm the validated SQL output file and query version with Members 1 and 2.
+- Compare delivered-order populations and distinct `order_id` counts.
+- Compare state-level late-order numerators, eligible denominators, and percentages.
+- Compare category-level average delivery duration, eligible order counts, and missing-value handling.
+- Compare monthly average delivery duration, on-time-rate numerators and denominators, and sample sizes.
+- Investigate and document any discrepancies instead of silently changing the source data.
+- Rerun the notebook from beginning to end after any corrections.
+- Confirm that all three PNG charts have been refreshed and are readable.
+
+The `processing_vs_transit.png` chart has not been generated because the available source does not establish a reliable carrier handoff timestamp. Processing time and transit time therefore cannot be separated reliably from the available fields.
+
+The current export may have a different row count from other project exports. This difference requires reconciliation and should not automatically be treated as an error. Small sample sizes and differences in source populations may also affect comparisons.
+
+State, category, and monthly differences are descriptive findings; they do not establish the causes of delivery delays.
+
+## 4. Final Sign-Off
+
+The notebook contains the chart-refresh code and data-integrity checks. The analysis can be considered ready for final sign-off only after the SQL reconciliation checks are completed, discrepancies are documented, and the refreshed charts are verified against the validated outputs.
