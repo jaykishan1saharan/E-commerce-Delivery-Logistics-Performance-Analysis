@@ -1,4 +1,5 @@
-pandas
-matplotlib
-mysql-connector-python
+# Runtime dependencies for the project
+pandas>=2.0,<4.0
+matplotlib>=3.7
 numpy
+mysql-connector-python

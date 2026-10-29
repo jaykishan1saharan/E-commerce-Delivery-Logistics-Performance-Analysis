@@ -1,201 +1,337 @@
-# Readme.md - Markdown
-
-# E-commerce Delivery Logistics Performance Analysis
-
-
-
-## Project Overview
-
-
-
-This project analyzes e-commerce order and delivery performance using the Olist dataset. It examines order statuses, delivery duration, on-time delivery, cancellations, customer reviews, and product-category performance.
-
-
-
-## Technology Stack
-
-
-
-- Python
-
-- Pandas
-
-- Matplotlib
-
-- SQLite
-
-- SQL
-
-- CSV datasets
-
-
-
-## Data Sources
-
-
-
-The analysis uses the following datasets from the Olist e-commerce dataset:
-
-
-
-- Orders
-
-- Order items
-
-- Products
-
-- Product category name translation
-
-- Reviews
-
-
-
-Raw CSV files are stored in `data/raw/`.
-
-
-
-## Data Loading and Validation
-
-
-
-The reusable data-loading module is located at:
-
-
-
-`src/logistics_analysis/data_loading.py`
-
-
-
-The loader supports CSV and MySQL data sources, subject to configuration.
-
-
-
-Required analytical columns include:
-
-
-
-- `order_id`
-
-- `customer_id`
-
-- `order_status`
-
-
-
-The validation checks required columns, missing order IDs, duplicate order IDs, and invalid timestamp values.
-
-
-
-## Configuration
-
-
-
-For CSV loading, configure:
-
-
-
-- `LOGISTICS_DATA_SOURCE=csv`
-
-- `LOGISTICS_ANALYSIS_CSV` to the path of the analytical CSV file
-
-
-
-The main analysis script currently configures CSV loading from `data/raw/olist_orders_dataset.csv`.
-
-
-
-MySQL loading requires the corresponding connection environment variables and a valid SQL query file.
-
-
-
-## Run the Analysis
-
-
-
-From the project root, run:
-
-
-
-```bash
-
-python run_analysis.py
-
+# E-commerce Delivery & Logistics Performance Analysis
+
+## Project overview
+This project analyzes the Olist e-commerce dataset to understand order status, delivery performance, data quality, cancellations, and customer review patterns. The repository contains source data, SQL cleaning/audit scripts, saved analysis outputs, and Python-generated charts and summaries.
+
+## Project status
+The repository contains initial data-quality reports and exploratory analysis outputs. Treat the project as **in progress** until the team has rerun the current SQL/Python workflows, reconciled differing counts, verified dashboard outputs, and approved the final report.
+
+## Repository structure
+- `data/raw/` — source CSV files; preserve these files unchanged.
+- `data/interim/` — saved query outputs and intermediate analysis files.
+- `SQL/` — SQL cleaning, audit, and export scripts.
+- `reports/` — data dictionary, cleaning log, quality summaries, and analysis outputs.
+- `reports/member4/` — charts and CSV outputs for order status, delivery duration, cancellations, and review scores.
+- `docs/` — project daily log, decision log, meeting notes, and submission checklist.
+- `load_data.py`, `run_analysis.py`, `export_member4_results.py` — Python scripts for loading/analysis/export; check their current requirements and paths before running.
+
+## Data and analysis notes
+The source data represents Olist e-commerce orders. Existing reports include order status, review-score distribution, delivery duration, cancellation analysis, and data-quality checks.
+
+**Important reconciliation note:** Existing artifacts report different row counts and late-delivery totals. For example, `reports/cleaning_summary.md` describes saved cleaning outputs, `reports/data_quality_summary.md` describes staging-table audit results, and `member4_findings.md` reports 7,826 late deliveries while a separate KPI validation result reported 6,534. These may use different snapshots, filters, or definitions. Do not treat them as directly comparable or publish one as the final KPI until the team reruns the current workflows and agrees on the denominator and eligibility rules.
+
+## Setup
+Use a Python virtual environment where possible:
+**Project status:** Data ingestion, MySQL data-quality auditing, clean views, KPI validation, and initial exploratory analysis are available. Further reconciliation, end-to-end testing, analysis, and final reporting remain in progress.
+
+## 1. Project Overview
+
+This team project analyzes the Brazilian E-Commerce Public Dataset by Olist to understand order fulfilment, delivery duration, late deliveries, cancellations, customer reviews, and data-quality limitations.
+
+The repository contains raw CSV datasets, Python analysis scripts, MySQL staging and validation scripts, saved SQL query outputs, data-quality documentation, and preliminary exploratory visualizations.
+
+The analysis is descriptive. Observed relationships should not be interpreted as proof of causation, and missing operational data must not be invented.
+
+## 2. Dataset
+
+**Source:** [Brazilian E-Commerce Public Dataset by Olist (Kaggle)](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+
+The `data/raw/` directory contains six source files:
+
+- `olist_customers_dataset.csv`
+- `olist_order_items_dataset.csv`
+- `olist_order_reviews_dataset.csv`
+- `olist_orders_dataset.csv`
+- `olist_products_dataset.csv`
+- `product_category_name_translation.csv`
+
+Keep the original CSV files unchanged. The complete Olist dataset includes other tables that may not be present in this repository.
+
+## 3. Project Status
+
+### Available and completed components
+
+- Raw CSV files organized under `data/raw/`.
+- Python scripts for loading selected data into SQLite and running summary analysis.
+- MySQL staging import script for the six source datasets.
+- SQL data-quality audit queries and clean views.
+- KPI queries and KPI validation scripts.
+- Saved SQL query results under `data/interim/`.
+- Data-quality summaries, cleaning logs, a data dictionary, and validation reports.
+- Initial EDA summary tables and visualizations.
+
+### Remaining work
+
+- Run and verify all workflows from a clean environment.
+- Reconcile saved outputs generated by different runs or stages.
+- Review cleaning rules and unresolved data-quality anomalies.
+- Complete additional analysis and any planned dashboard.
+- Regenerate and review final reports from a consistent data snapshot.
+- Document final conclusions and recommendations after validation.
+
+**Important:** Some existing reports contain preliminary results from earlier runs. Do not treat every saved output as a final, mutually reconciled result.
+
+## 4. Repository Structure
+
+```text
+E-commerce-Delivery-Logistics-Performance-Analysis/
+├── data/
+│   ├── raw/                       # Original Olist CSV files
+│   └── interim/                   # Saved SQL query outputs
+├── reports/
+│   ├── data_quality/
+│   │   ├── day1_validation_summary.md
+│   │   ├── mysql_audit_output.txt
+│   │   ├── data_quality_summary.md
+│   │   ├── cleaning_summary.md
+│   │   ├── data_dictionary.csv
+│   │   ├── data_quality_report.csv
+│   │   └── cleaning_log.csv
+│   ├── figures/                   # Exploratory visualizations
+│   ├── tables/                    # Summary tables
+│   └── interim_findings.md        # Preliminary findings
+├── sql/
+│   ├── 02_data_quality_audit.sql
+│   ├── 03_create_clean_views.sql
+│   ├── 04_kpi_queries.sql
+│   ├── 05_export_cleaning_log.sql
+│   ├── 06_kpi_validation_clean.sql
+│   └── 07_kpi_validation_optimized.sql
+├── src/
+│   └── scripts/
+│       ├── import_mysql_staging.py
+│       ├── build_kpi_sqlite.py
+│       ├── load_data.py
+│       ├── run_analysis.py
+│       └── export_analysis_results.py
+├── requirements.txt
+├── .gitignore
+└── README.md
 ```
 
+## 5. Environment Setup
 
+Python 3.9 or newer is recommended. Use a virtual environment.
 
-To generate order-level KPI data, run:
-
-
-
-```bash
-
-python create_kpi_orders.py
-
-```
-
-
-
-To generate product-category analysis and reports, run:
-
-
+### macOS / Linux
 
 ```bash
-
-python product_category_analysis.py
-
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
+The analysis also depends on the SQL database/workflow used by the team. Review the relevant SQL script comments and confirm the database name, source paths, and required table/view creation order before execution. Do not assume that running the Python scripts alone rebuilds the MySQL staging and clean views.
 
+## Suggested execution and verification order
+1. Confirm source CSV files exist in `data/raw/`.
+2. Review and run the approved SQL import/staging and cleaning scripts in the documented order.
+3. Run the audit and cleaning-log export against the current database.
+4. Run the Python analysis/export scripts with their required paths and dependencies.
+5. Compare row counts and KPI definitions across SQL, CSV outputs, Python reports, and dashboard.
+6. Record discrepancies and unresolved anomalies in `docs/decision_log.md` and `reports/project_summary.md`.
+7. Update final findings only after the team lead and analysis owners confirm the results.
 
-## Outputs
-
-
-
-- `data/interim/kpi_orders.csv` — order-level KPI dataset
-
-- `reports/tables/kpi_by_category.csv` — product-category KPI table
-
-- `reports/figures/category_top15_order_count.png` — top 15 categories by order count
-
-- `reports/limitations.md` — analysis limitations
-
-- `reports/kpi_definitions.md` — KPI definitions
-
-
-
-Additional reports are generated by the analysis and export scripts.
-
-
-
-## KPI Definitions
-
-
-
-- **Order volume:** Distinct orders grouped by status.
-
-- **Delivery duration:** Time between purchase and actual customer delivery for eligible delivered orders.
-
-- **On-time delivery rate:** Percentage of eligible delivered orders delivered on or before the estimated delivery date.
-
-- **Cancellation rate:** Canceled orders as a percentage of all orders.
-
-- **Category performance:** Order volume, cancellations, delivery duration, and on-time delivery metrics by product category.
-
-
-
-Refer to `reports/kpi_definitions.md` for the detailed definitions and eligibility rules.
-
-
+## Documentation
+- `docs/week3_daily_log.md` — day-by-day work and verification status.
+- `docs/decision_log.md` — confirmed assumptions, definitions, and unresolved decisions.
+- `docs/meeting_notes.md` — review outcomes and handoffs.
+- `docs/final_submission_checklist.md` — final quality and submission checks.
+- `reports/project_summary.md` — project overview, verified findings, limitations, and pending reconciliation.
 
 ## Limitations
+- Saved CSV/report outputs are snapshots and may not reflect the current database.
+- Delivery KPI counts depend on order eligibility, timestamp validity, and the agreed on-time definition.
+- Existing reports identify anomalies but do not establish their causes.
+- Final dashboard availability and consistency must be verified against the current branch before marking the project complete.
+### Windows PowerShell
 
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
 
+The MySQL workflow also requires a running MySQL server, access to the `ecommerce_delivery` database, and the Python MySQL connector used by the import script. Confirm that all required Python packages are installed before running the MySQL import.
 
-- Missing or invalid timestamps can affect delivery metrics.
+## 6. MySQL Workflow
 
-- Orders containing multiple product categories may be counted in multiple categories.
+The MySQL workflow uses the `ecommerce_delivery` database and six staging tables:
 
-- The analysis is descriptive and does not establish causation.
+- `customers_stage`
+- `orders_stage`
+- `items_stage`
+- `reviews_stage`
+- `products_stage`
+- `translation_stage`
 
-- Results depend on source-data quality and the selected KPI definitions.
+### Step 1: Import the raw CSV files
+
+Run the following from the repository root:
+
+```bash
+python src/scripts/import_mysql_staging.py
+```
+
+The script imports the six source datasets into MySQL staging tables. Keep the original CSV files unchanged.
+
+### Step 2: Run the data-quality audit
+
+Execute:
+
+```text
+sql/02_data_quality_audit.sql
+```
+
+This script contains checks for data completeness, duplicates, invalid values, timestamps, and table relationships.
+
+### Step 3: Create or refresh clean views
+
+Execute:
+
+```text
+sql/03_create_clean_views.sql
+```
+
+Review the SQL and its assumptions before execution. The clean views provide a transformed analytical layer while retaining the staging tables as source inputs.
+
+### Step 4: Run KPI queries
+
+Execute:
+
+```text
+sql/04_kpi_queries.sql
+```
+
+These queries support delivery and logistics KPI analysis. Review the definitions, eligibility rules, and denominators before reporting results.
+
+### Step 5: Export the cleaning log
+
+Execute:
+
+```text
+sql/05_export_cleaning_log.sql
+```
+
+Review the query results and export them as required by the script's instructions.
+
+### Step 6: Validate the KPI results
+
+The repository includes two validation scripts:
+
+```text
+sql/06_kpi_validation_clean.sql
+sql/07_kpi_validation_optimized.sql
+```
+
+Review and run the appropriate script against the current database. The optimized validation workflow uses temporary tables and indexing techniques to support validation.
+
+Saved MySQL outputs are available in:
+
+- `reports/data_quality/mysql_audit_output.txt`
+- `reports/kpi_validation/mysql_kpi_validation_output.txt`
+
+These files are saved snapshots. Rerun the corresponding checks when the underlying data or SQL logic changes.
+
+## 7. SQLite Analysis Workflow
+
+The SQLite workflow is separate from the MySQL workflow. It must not be assumed to refresh MySQL staging tables, clean views, or saved audit results.
+
+Run the following commands from the repository root:
+
+```bash
+python src/scripts/load_data.py
+python src/scripts/run_analysis.py
+python src/scripts/export_analysis_results.py
+```
+
+The existing Python workflow loads selected orders and reviews data into SQLite, runs summary SQL queries, and exports analysis results.
+
+The repository also contains:
+
+```bash
+python src/scripts/build_kpi_sqlite.py
+```
+
+This is a separate SQLite KPI-building workflow. Check the script's configuration and expected input files before running it.
+
+Do not assume the SQLite database contains all six source datasets or that outputs from SQLite and MySQL will be identical without matching schemas, cleaning rules, and data snapshots.
+
+## 8. Verified MySQL Data Counts
+
+The latest documented MySQL staging and clean-view counts are:
+
+| Dataset | Raw rows | Staging rows | Clean-view rows |
+|---|---:|---:|---:|
+| Customers | 99,441 | 99,441 | 99,441 |
+| Orders | 99,441 | 99,441 | 99,441 |
+| Order items | 112,650 | 112,650 | 112,650 |
+| Reviews | 99,224 | 99,224 | 98,410 |
+| Products | 32,951 | 32,951 | 32,951 |
+| Category translations | 71 | 71 | 71 |
+| **Total** | **443,778** | **443,778** | **442,964** |
+
+The clean-view review count is lower because the existing clean-view logic removes excess duplicate `review_id` records.
+
+The review audit recorded:
+
+- Duplicate review ID groups: **789**
+- Excess duplicate review rows: **814**
+- Review score 1: 11,424
+- Review score 2: 3,151
+- Review score 3: 8,179
+- Review score 4: 19,142
+- Review score 5: 57,328
+
+These counts describe the verified database snapshot used for the audit. Rerun the checks if the staging data or cleaning logic changes.
+
+## 9. Reports and Outputs
+
+Important project artifacts include:
+
+- `reports/data_quality/day1_validation_summary.md` — reconciled row counts and data-quality summary.
+- `reports/data_quality/mysql_audit_output.txt` — saved MySQL audit output.
+- `reports/data_quality/data_quality_summary.md` — data-quality summary from a saved run.
+- `reports/data_quality/cleaning_summary.md` — cleaning observations and follow-up items.
+- `reports/data_quality/data_dictionary.csv` — field descriptions and validation notes.
+- `reports/data_quality/data_quality_report.csv` — saved check-level results.
+- `reports/data_quality/cleaning_log.csv` — saved cleaning/audit log.
+- `reports/kpi_validation/mysql_kpi_validation_output.txt` — saved KPI validation output.
+- `reports/interim_findings.md` — preliminary descriptive findings.
+- `reports/tables/` — summary tables.
+- `reports/figures/` — exploratory visualizations.
+- `data/interim/` — saved SQL query result CSVs.
+
+Saved files may represent different runs. Check their source and timestamp before combining their results into one report.
+
+## 10. Methodology and Data-Quality Principles
+
+- Preserve original source CSV files.
+- Document transformations and retain traceability to staging data.
+- Check missing values, duplicate keys, invalid statuses, timestamps, chronology, and table relationships.
+- Treat review titles and comments as optional fields.
+- Investigate unusual delivery durations and timestamp anomalies before excluding records.
+- Define cancellation and late-delivery denominators explicitly.
+- Exclude cancelled orders from delivered-order punctuality calculations.
+- Account for missing review scores and the relationship between review records and orders.
+- Calculate geographic or carrier-related KPIs only when the required source fields are available.
+- Validate KPI results against the current database before publishing final metrics.
+
+## 11. Team and Project Plan
+
+The project team comprises Yashashvi Yash (Lead), Jaykishan Saharan, Madhupriya Naga, Katta Meghana, and Lav Kumar.
+
+The planned project phases are:
+
+1. **Week 1 — Data ingestion, validation, and initial EDA:** foundational artifacts are available.
+2. **Week 2 — Time-series analysis and additional KPI development:** continue validation and analysis.
+3. **Week 3 — Delivery-delay analysis or modeling:** proceed where supported by the data and project scope.
+4. **Week 4 — Final reporting, dashboard, and recommendations:** complete after analysis review.
+
+Update the project status as work is completed and reviewed. Do not mark planned activities as complete until their outputs have been verified.
+
+## 12. License and Attribution
+
+The source dataset is provided by Olist through Kaggle. Review the dataset page's terms and attribution requirements before redistributing the data. The repository's own license has not yet been specified.

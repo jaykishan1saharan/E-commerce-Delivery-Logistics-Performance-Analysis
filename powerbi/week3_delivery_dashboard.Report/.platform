@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Week 3 Delivery Dashboard"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "27dbff64-77f5-4db4-b826-39c9815600b1"
+  }
+}
