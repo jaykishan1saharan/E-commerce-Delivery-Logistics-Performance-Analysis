@@ -126,3 +126,20 @@ This section supplements the earlier commit history and does not replace older e
 
 ### Next review — 29 October 2026
 Check Yashashvi's branch, inspect outstanding validation and dashboard evidence, and update this tracker when new evidence is available.
+
+## Thursday Commit Review — 29 October 2026
+
+| Member | Latest evidence reviewed | Thursday status |
+|---|---|---|
+| Yashashvi | `31cf9ea` — updates SQL KPI queries and adds a backup SQL file | SQL changes confirmed; prioritized issue ranking not yet confirmed |
+| Meghana | `c1abc4a` and validation files on `origin/Meghana`; summary reports zero mismatches for two on-time flags | Partial validation evidence confirmed; full validation scope and sensitivity checks need review |
+| Jaykisan | `9ffb9ae` — notebook, chart notes, and Thursday reconciliation checklist | Commit confirmed; reconciliation checklist still contains unchecked items |
+| Madhupriya | `f0648f0` — dashboard trend visuals and metric definitions, dated 28 October | Dashboard work confirmed; Thursday recommendations and summary not yet confirmed |
+| Lav Kumar | Latest confirmed commit remains `92dc910` | Thursday documentation update prepared; commit still pending |
+
+### Thursday review notes
+- The latest `origin/main` history includes Yashashvi's `31cf9ea` and Jaykisan's `9ffb9ae`.
+- Meghana's summary reports 99,441 rows checked and zero mismatches for `on_time_eligible` and `on_time`. This does not independently validate every KPI.
+- Jaykisan's `reports/thursday_chart_reconciliation.md` lists checks that must be completed before chart sign-off.
+- These statuses reflect the evidence reviewed on 29 October and should be updated if newer commits or outputs are confirmed.
+- Continue on `LavKumar`; do not merge entire teammate branches as part of this documentation update.
