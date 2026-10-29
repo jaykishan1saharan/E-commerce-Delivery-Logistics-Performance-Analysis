@@ -78,6 +78,6 @@ must not be silently adjusted to force a match.
 
 - **1,359** records are flagged for sensitivity analysis.
 - **98,082** records remain in the filtered population.
-- Use the sensitivity table to document whether KPI conclusions change.
-- Complete final SQL comparison and reviewer sign-off after investigating
-  any baseline mismatch.
+- SQL calendar-date KPI totals match the established Python baseline.
+- Independent Python flag validation passed with zero mismatches for
+  `on_time_eligible` and `on_time`. Final reviewer sign-off remains pending.
