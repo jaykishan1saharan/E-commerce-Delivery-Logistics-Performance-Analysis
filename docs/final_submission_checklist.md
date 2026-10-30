@@ -53,3 +53,29 @@ Do not mark an item complete until the corresponding file, output, or GitHub sta
 - Reconcile the late-delivery discrepancy (7,826 in `member4_findings.md` versus 6,534 in a separate KPI validation output).
 - Reconcile row-count differences between saved outputs and reports.
 - Verify final Week 3 files and dashboard availability on the target branch.
+
+## Friday Week 3 Handover Review — 30 October 2026
+
+The following statuses reflect the Friday Git and file review. They do not replace technical testing or team-lead approval.
+
+### Member deliverable status
+
+- [ ] Yashashvi: confirm Friday SQL finalization, reproducible segment exports, and prioritized issue ranking.
+- [ ] Meghana: review the full validation sign-off and rerun or independently verify the reported validation and sensitivity results.
+- [ ] Jaykisan: execute the final notebook from a clean kernel and complete SQL-to-chart reconciliation.
+- [ ] Madhupriya: confirm recommendations and Week 3 summary are integrated through the agreed workflow; reconcile dashboard KPIs with validated SQL results.
+- [ ] Lav Kumar: commit and push Friday documentation and verify the final README and checklist.
+
+### Remaining project-wide acceptance checks
+
+- [ ] Reconcile the selected `kpi_orders.csv` population with `kpi_orders_all.csv` and other approved SQL outputs.
+- [ ] Resolve or document the late-delivery discrepancy (7,826 versus 6,534) using agreed definitions and denominators.
+- [ ] Confirm all KPI numerators, denominators, and eligible populations.
+- [ ] Complete chart-to-SQL reconciliation and document any differences.
+- [ ] Verify dashboard measures against the reconciled analysis outputs.
+- [ ] Confirm operational recommendations are evidence-based and do not claim unproven causation.
+- [ ] Confirm all final Week 3 reports and dashboard artifacts are on the target branch or agreed delivery location.
+- [ ] Run the documented workflow and verify reproducibility.
+- [ ] Obtain team-lead approval before marking the project complete.
+
+**Handover status:** Substantial Week 3 work is committed, but final analytical reconciliation, integration checks, reproducibility, and approval remain open.
