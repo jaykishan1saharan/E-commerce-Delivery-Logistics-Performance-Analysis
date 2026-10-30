@@ -60,8 +60,22 @@ Counts by check can overlap; do not sum them to obtain unique flagged rows.
 The expected values are the previously recorded project validation totals.
 A CHECK means the source file or KPI definitions need investigation; it
 must not be silently adjusted to force a match.
+## 5. Review data validation
 
-## 5. Interpretation and limitations
+- Source: `olist_order_reviews_dataset.csv`
+- Total review records: **99,224**
+- Non-null order IDs: **99,224**
+- Unique reviewed orders: **98,673**
+- Orders with multiple reviews: **547**
+- Extra review records beyond the first review per order: **551**
+- Maximum reviews for a single order: **3**
+
+A total of 547 orders have more than one review record. These orders account for 551 additional review records beyond the first review per order.
+
+Review records should be preserved at their original grain for review-level analysis. For order-level delivery analysis, review records should be aggregated by `order_id` before joining to the order-level dataset to avoid multiplying order rows.
+
+These results were calculated directly from the original review CSV using Python and pandas.
+## 6. Interpretation and limitations
 
 - Compare the all-row KPIs with the filtered KPIs before deciding whether
   flagged records materially affect the conclusions.
@@ -74,7 +88,7 @@ must not be silently adjusted to force a match.
 - Review every CHECK and investigate differences before sign-off.
 **Investigation finding:** The 1,359 records flagged for negative `carrier_handoff_days` have carrier delivery timestamps earlier than their approval timestamps. This is a timestamp-order inconsistency in the source data, not proof that the records themselves are invalid. The original records are preserved, and the filtered KPI results are presented only as a sensitivity analysis. Investigate the upstream timestamp and duration-generation logic before deciding whether to exclude these records from official reporting.
 
-## 6. Conclusion
+## 7. Conclusion
 
 - **1,359** records are flagged for sensitivity analysis.
 - **98,082** records remain in the filtered population.
