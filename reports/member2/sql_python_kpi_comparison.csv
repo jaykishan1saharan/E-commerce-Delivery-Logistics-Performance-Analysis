@@ -1,0 +1,11 @@
+metric,python_value,sql_value,difference,status,definition
+total_orders,99441,99441,0,PASS,All dataset rows
+unique_order_ids,99441,99441,0,PASS,Distinct order IDs
+duplicate_order_ids,0,0,0,PASS,Expected zero
+missing_order_ids,0,0,0,PASS,Expected zero
+delivered_orders,96478,96478,0,PASS,Status equals delivered
+cancelled_orders,625,625,0,PASS,Status equals canceled
+late_deliveries_calendar_dates,6534,6534,0,PASS,Eligible delivered orders with actual calendar date after estimate
+on_time_deliveries_calendar_dates,89936,89936,0,PASS,Eligible delivered orders not late by calendar date
+eligible_delivered_orders,96470,96470,0,PASS,Delivered orders with valid actual and estimated delivery timestamps
+late_deliveries_existing_flags,6534,,,NOT INDEPENDENTLY VERIFIED,Python flags use the delivery-date eligibility rule; SQL calendar-date results match but stored flags were not independently checked

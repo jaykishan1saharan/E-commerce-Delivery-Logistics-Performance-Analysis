@@ -1,9 +1,24 @@
 
+import os
 import sqlite3
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-db_path = PROJECT_ROOT / "delivery_analysis.db"
+from src.logistics_analysis.data_loading import load_order_analysis_data
+
+# Configure the data source.
+os.environ.setdefault("LOGISTICS_DATA_SOURCE", "csv")
+os.environ.setdefault(
+    "LOGISTICS_ANALYSIS_CSV",
+    str(
+        Path(__file__).resolve().parent
+        / "data"
+        / "raw"
+        / "olist_orders_dataset.csv"
+    ),
+)
+
+# SQLite database location.
+db_path = Path(__file__).resolve().parent / "delivery_analysis.db"
 
 queries = {
     "1. Order Volume by Status": """
@@ -12,55 +27,97 @@ queries = {
         GROUP BY order_status
         ORDER BY total_orders DESC;
     """,
+
     "2. Delivery Duration (Days)": """
         SELECT
-            ROUND(AVG(JULIANDAY(order_delivered_customer_date)
-                - JULIANDAY(order_purchase_timestamp)), 2) AS average_days,
-            ROUND(MIN(JULIANDAY(order_delivered_customer_date)
-                - JULIANDAY(order_purchase_timestamp)), 2) AS minimum_days,
-            ROUND(MAX(JULIANDAY(order_delivered_customer_date)
-                - JULIANDAY(order_purchase_timestamp)), 2) AS maximum_days
+            ROUND(
+                AVG(
+                    JULIANDAY(order_delivered_customer_date)
+                    - JULIANDAY(order_purchase_timestamp)
+                ),
+                2
+            ) AS average_days,
+            ROUND(
+                MIN(
+                    JULIANDAY(order_delivered_customer_date)
+                    - JULIANDAY(order_purchase_timestamp)
+                ),
+                2
+            ) AS minimum_days,
+            ROUND(
+                MAX(
+                    JULIANDAY(order_delivered_customer_date)
+                    - JULIANDAY(order_purchase_timestamp)
+                ),
+                2
+            ) AS maximum_days
         FROM orders
         WHERE order_status = 'delivered'
           AND order_purchase_timestamp IS NOT NULL
           AND order_delivered_customer_date IS NOT NULL;
     """,
+
     "3. Late Deliveries": """
         SELECT COUNT(*) AS late_deliveries
         FROM orders
         WHERE order_status = 'delivered'
           AND order_delivered_customer_date IS NOT NULL
           AND order_estimated_delivery_date IS NOT NULL
-          AND order_delivered_customer_date > order_estimated_delivery_date;
+          AND DATE(order_delivered_customer_date)
+              > DATE(order_estimated_delivery_date);
     """,
+
     "4. Cancelled Orders": """
         SELECT COUNT(*) AS cancelled_orders
         FROM orders
         WHERE order_status = 'canceled';
     """,
+
     "5. Cancellation Percentage": """
         SELECT ROUND(
-            100.0 * SUM(CASE WHEN order_status = 'canceled' THEN 1 ELSE 0 END)
-            / COUNT(*), 2
+            100.0 * SUM(
+                CASE
+                    WHEN order_status = 'canceled' THEN 1
+                    ELSE 0
+                END
+            ) / COUNT(*),
+            2
         ) AS cancellation_percentage
         FROM orders;
     """,
+
     "6. Review Score Distribution": """
         SELECT review_score, COUNT(*) AS total_reviews
         FROM order_reviews
         GROUP BY review_score
         ORDER BY review_score;
-    """
+    """,
 }
 
 with sqlite3.connect(db_path) as connection:
+    # Load and validate the analytical orders dataset.
+    orders_df = load_order_analysis_data()
+
+    # Refresh the SQLite orders table.
+    orders_df.to_sql(
+        "orders",
+        connection,
+        if_exists="replace",
+        index=False,
+    )
+
+    print("Validated orders loaded:", len(orders_df))
+
+    # Execute and display each analysis query.
     for title, sql in queries.items():
         print("\n" + "=" * 45)
         print(title)
         print("=" * 45)
 
         cursor = connection.execute(sql)
+
         print(" | ".join(column[0] for column in cursor.description))
+
         for row in cursor.fetchall():
             print(" | ".join(str(value) for value in row))
 

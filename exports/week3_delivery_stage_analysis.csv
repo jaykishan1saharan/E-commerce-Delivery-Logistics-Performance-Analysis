@@ -1,0 +1,2 @@
+total_orders,valid_approval_stages,avg_purchase_to_approval_days,valid_handling_stages,avg_approval_to_carrier_days,valid_transit_stages,avg_carrier_to_customer_days
+75840,75714,0.43,73451,2.86,73568,9.33

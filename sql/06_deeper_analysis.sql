@@ -628,3 +628,279 @@ LIMIT 100;
 - Business Insights and Data Interpretation: Established rules for calculating KPIs, handling missing values, avoiding duplicate counts, and distinguishing correlation from causation.
 Overall objective: To transform raw e-commerce data into reliable analytical insights, identify delivery and operational inefficiencies, understand customer satisfaction, and prepare the foundation for a Power BI dashboard and a professional Data Analyst portfolio project.
 */
+
+
+-- ============================================================
+-- DAY 2: REGIONAL AND PRODUCT-CATEGORY DEEP ANALYSIS
+-- Owner: Member 1 - Yashashvi Yash
+-- Source: vw_order_level_analytics
+-- ============================================================
+
+-- 11A. DELIVERY PERFORMANCE BY CUSTOMER STATE
+-- Compare late rate, order volume, and average delay.
+CREATE OR REPLACE VIEW vw_order_level_analytics AS
+SELECT
+    o.order_id,
+    o.order_status,
+    c.customer_state,
+
+    CASE
+        WHEN c.customer_state IN ('AM','RR','AP','PA','TO','RO','AC')
+            THEN 'North'
+        WHEN c.customer_state IN ('MA','PI','CE','RN','PB','PE','AL','SE','BA')
+            THEN 'Northeast'
+        WHEN c.customer_state IN ('MT','MS','GO','DF')
+            THEN 'Central-West'
+        WHEN c.customer_state IN ('SP','RJ','MG','ES')
+            THEN 'Southeast'
+        WHEN c.customer_state IN ('PR','SC','RS')
+            THEN 'South'
+        ELSE 'Unknown'
+    END AS region,
+
+    CAST(NULLIF(o.order_purchase_timestamp, '') AS DATETIME)
+        AS order_purchase_timestamp,
+
+    DAYOFWEEK(
+        CAST(NULLIF(o.order_purchase_timestamp, '') AS DATETIME)
+    ) AS weekday_num,
+
+    DAYNAME(
+        CAST(NULLIF(o.order_purchase_timestamp, '') AS DATETIME)
+    ) AS weekday,
+
+    ib.category,
+    COALESCE(ib.n_items, 0) AS n_items,
+    ib.order_value,
+    ib.freight_total,
+    rb.review_score,
+
+    DATEDIFF(
+        CAST(NULLIF(o.order_approved_at, '') AS DATETIME),
+        CAST(NULLIF(o.order_purchase_timestamp, '') AS DATETIME)
+    ) AS approval_days,
+
+    DATEDIFF(
+        CAST(NULLIF(o.order_delivered_carrier_date, '') AS DATETIME),
+        CAST(NULLIF(o.order_approved_at, '') AS DATETIME)
+    ) AS handling_days,
+
+    DATEDIFF(
+        CAST(NULLIF(o.order_delivered_customer_date, '') AS DATETIME),
+        CAST(NULLIF(o.order_purchase_timestamp, '') AS DATETIME)
+    ) AS delivery_days,
+
+    DATEDIFF(
+        CAST(NULLIF(o.order_delivered_customer_date, '') AS DATETIME),
+        CAST(NULLIF(o.order_estimated_delivery_date, '') AS DATETIME)
+    ) AS delay_days,
+
+    CASE
+        WHEN o.order_status = 'delivered'
+         AND NULLIF(o.order_delivered_customer_date, '') IS NOT NULL
+         AND NULLIF(o.order_estimated_delivery_date, '') IS NOT NULL
+        THEN CASE
+            WHEN CAST(o.order_delivered_customer_date AS DATETIME)
+                 <= CAST(o.order_estimated_delivery_date AS DATETIME)
+            THEN 1
+            ELSE 0
+        END
+        ELSE NULL
+    END AS is_on_time,
+
+    CASE WHEN o.order_status = 'canceled' THEN 1 ELSE 0 END
+        AS is_canceled,
+
+    CASE
+        WHEN rb.review_score IS NULL THEN NULL
+        WHEN rb.review_score <= 2 THEN 1
+        ELSE 0
+    END AS is_low_rating
+
+FROM orders o
+
+LEFT JOIN customers c
+    ON c.customer_id = o.customer_id
+
+LEFT JOIN (
+    SELECT
+        i.order_id,
+        COUNT(*) AS n_items,
+        SUM(COALESCE(i.price, 0)) AS order_value,
+        SUM(COALESCE(i.freight_value, 0)) AS freight_total,
+        GROUP_CONCAT(
+            DISTINCT COALESCE(
+                NULLIF(t.product_category_name_english, ''),
+                NULLIF(p.product_category_name, ''),
+                'Unknown'
+            )
+            SEPARATOR ', '
+        ) AS category
+    FROM items i
+    LEFT JOIN products p
+        ON p.product_id = i.product_id
+    LEFT JOIN translation t
+        ON t.product_category_name = p.product_category_name
+    GROUP BY i.order_id
+) ib
+    ON ib.order_id = o.order_id
+
+LEFT JOIN (
+    SELECT
+        order_id,
+        AVG(
+            CASE
+                WHEN review_score BETWEEN 1 AND 5
+                THEN review_score
+            END
+        ) AS review_score
+    FROM reviews
+    GROUP BY order_id
+) rb
+    ON rb.order_id = o.order_id;
+
+--- Wednesday work;
+-- 11C. Product-category delivery performance
+SELECT
+    COALESCE(NULLIF(t.product_category_name_english, ''),
+             NULLIF(p.product_category_name, ''),
+             'Unknown') AS category,
+    COUNT(DISTINCT o.order_id) AS total_orders,
+    COUNT(DISTINCT CASE
+        WHEN o.order_status = 'delivered'
+         AND NULLIF(o.order_delivered_customer_date, '') IS NOT NULL
+         AND NULLIF(o.order_estimated_delivery_date, '') IS NOT NULL
+        THEN o.order_id END) AS eligible_delivered_orders,
+    COUNT(DISTINCT CASE
+        WHEN o.order_status = 'delivered'
+         AND NULLIF(o.order_delivered_customer_date, '') IS NOT NULL
+         AND NULLIF(o.order_estimated_delivery_date, '') IS NOT NULL
+         AND STR_TO_DATE(o.order_delivered_customer_date, '%Y-%m-%d %H:%i:%s')
+             > STR_TO_DATE(o.order_estimated_delivery_date, '%Y-%m-%d %H:%i:%s')
+        THEN o.order_id END) AS late_orders,
+    ROUND(100.0 * COUNT(DISTINCT CASE
+        WHEN o.order_status = 'delivered'
+         AND NULLIF(o.order_delivered_customer_date, '') IS NOT NULL
+         AND NULLIF(o.order_estimated_delivery_date, '') IS NOT NULL
+         AND STR_TO_DATE(o.order_delivered_customer_date, '%Y-%m-%d %H:%i:%s')
+             > STR_TO_DATE(o.order_estimated_delivery_date, '%Y-%m-%d %H:%i:%s')
+        THEN o.order_id END)
+        / NULLIF(COUNT(DISTINCT CASE
+        WHEN o.order_status = 'delivered'
+         AND NULLIF(o.order_delivered_customer_date, '') IS NOT NULL
+         AND NULLIF(o.order_estimated_delivery_date, '') IS NOT NULL
+        THEN o.order_id END), 0), 2) AS late_delivery_rate_pct
+FROM orders o
+JOIN items i ON i.order_id = o.order_id
+LEFT JOIN products p ON p.product_id = i.product_id
+LEFT JOIN translation t ON t.product_category_name = p.product_category_name
+GROUP BY category
+ORDER BY late_orders DESC;
+-- 12A. Monthly order and delivery trends
+SELECT
+    DATE_FORMAT(
+        STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s'),
+        '%Y-%m'
+    ) AS purchase_month,
+    COUNT(*) AS total_orders,
+    SUM(order_status = 'delivered') AS delivered_orders,
+    SUM(order_status = 'canceled') AS canceled_orders,
+    ROUND(AVG(CASE
+        WHEN order_status = 'delivered'
+         AND STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        THEN DATEDIFF(
+            STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s')
+        )
+    END), 2) AS avg_delivery_days
+FROM orders
+WHERE STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+GROUP BY purchase_month
+ORDER BY purchase_month;
+-- 12B. Weekly order and delivery trends
+SELECT
+    YEARWEEK(
+        STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s'), 3
+    ) AS purchase_year_week,
+    COUNT(*) AS total_orders,
+    SUM(order_status = 'delivered') AS delivered_orders,
+    SUM(order_status = 'canceled') AS canceled_orders,
+    ROUND(AVG(CASE
+        WHEN order_status = 'delivered'
+         AND STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        THEN DATEDIFF(
+            STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s')
+        )
+    END), 2) AS avg_delivery_days
+FROM orders
+WHERE STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+GROUP BY purchase_year_week
+ORDER BY purchase_year_week;
+-- 12C. Valid delivery-stage duration analysis
+SELECT
+    COUNT(*) AS total_orders,
+
+    SUM(
+        STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        AND STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        AND STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s')
+            >= STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s')
+    ) AS valid_approval_stages,
+
+    ROUND(AVG(CASE
+        WHEN STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+         AND STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+         AND STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s')
+             >= STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s')
+        THEN TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(order_purchase_timestamp, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s')
+        ) / 86400.0
+    END), 2) AS avg_purchase_to_approval_days,
+
+    SUM(
+        STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        AND STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        AND STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s')
+            >= STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s')
+    ) AS valid_handling_stages,
+
+    ROUND(AVG(CASE
+        WHEN STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+         AND STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+         AND STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s')
+             >= STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s')
+        THEN TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(order_approved_at, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s')
+        ) / 86400.0
+    END), 2) AS avg_approval_to_carrier_days,
+
+    SUM(
+        STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        AND STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+        AND STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s')
+            >= STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s')
+    ) AS valid_transit_stages,
+
+    ROUND(AVG(CASE
+        WHEN STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+         AND STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s') IS NOT NULL
+         AND STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s')
+             >= STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s')
+        THEN TIMESTAMPDIFF(
+            SECOND,
+            STR_TO_DATE(order_delivered_carrier_date, '%Y-%m-%d %H:%i:%s'),
+            STR_TO_DATE(order_delivered_customer_date, '%Y-%m-%d %H:%i:%s')
+        ) / 86400.0
+    END), 2) AS avg_carrier_to_customer_days
+
+FROM orders;
+--Inspected the databse table reviewd the database file created 4 csv files
+--week3_category_analysis.csv
+--week3_delivery_stage_analysis.csv
+--week3_monthly_trends.csv
+--week3_weekly_trends.csv
