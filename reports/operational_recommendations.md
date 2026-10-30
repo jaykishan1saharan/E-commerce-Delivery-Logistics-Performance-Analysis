@@ -1,0 +1,34 @@
+# Operational Recommendations
+
+- **Project:** E-commerce Delivery & Logistics Performance Analysis
+- **Basis:** Saved Week 3 analysis exports and documented KPI validation
+- **Decision status:** Recommendations for investigation and controlled pilots; not causal conclusions or approved service targets.
+
+## Recommended actions
+
+| Priority | Recommendation | Evidence | Proposed action and success measure | Guardrail |
+|---|---|---|---|---|
+| 1 | **Run a focused delivery-process review in the Northeast.** | The [Week 3 regional export](../exports/week3_region_analysis.csv) reports 14.24% late (990 / 6,951 eligible), the highest rate among its five regions. It reports South at 7.07% (744 / 10,528) and Southeast at 7.36% (3,715 / 50,447). | Review route/service mix, delivery promises, and exception handling for Northeast orders; compare subsequent eligible-order late rates and counts against a clearly defined baseline before expanding any intervention. | These are descriptive rates from an export not yet reconciled to the validated overall KPI output. A regional difference does not identify its cause. Compare like-for-like periods and show denominators. |
+| 2 | **Investigate the long carrier-to-customer interval as a diagnostic lead.** | In the [delivery-stage export](../exports/week3_delivery_stage_analysis.csv), mean purchase-to-approval is 0.43 days (75,714 valid), approval-to-carrier is 2.86 days (73,451 valid), and carrier-to-customer is 9.33 days (73,568 valid). | First verify the operational meaning and completeness of each timestamp. Then inspect a sample of orders and segment the verified carrier-to-customer interval by region and cohort. Track interval distributions and valid-stage counts, not only averages. | Different stage denominators and unresolved carrier timestamp semantics make these proxy intervals, not confirmed warehouse-versus-carrier performance measures. Do not assign accountability or set a target from these figures alone. |
+| 3 | **Reconcile the KPI baseline before publishing targets or comparing teams.** | The [validation sign-off](validation_signoff.md) documents 6,534 late / 96,470 eligible (6.77%) and 89,936 on-time (93.23%), with SQL/Python agreement on nine directly compared checks. The [project summary](project_summary.md) also records an unresolved earlier late count of 7,826. The [Week 3 chart notes](chart_notes.md) say the charts still require SQL reconciliation. | Name one approved source snapshot and query version; reconcile order grain, date rules, filters, and numerator/denominator for the overall, regional, state, category, and time exports. Record the approved baseline and excluded/missing counts before publishing dashboard targets. | Keep 6,534 as a validated result in its documented definition, but do not imply the separate 7,826 figure or all Week 3 aggregates have been reconciled. Formal team approval remains pending. |
+| 4 | **Investigate timestamp-order anomalies while preserving source data.** | The [validation report](validation_report.md) flags 1,359 negative carrier-handoff intervals, with carrier timestamps earlier than approval timestamps. It reports sensitivity results separately and states that the original records are preserved. | Trace the timestamp and duration-generation logic, quantify affected periods and segments, and document a reviewed disposition. Recompute any affected interval only after the business meaning and rule are confirmed. | A negative interval indicates timestamp-order inconsistency; it does not by itself prove the order is invalid. Do not silently repair or remove records. |
+| 5 | **Hold category-based operational changes until the category data is usable.** | The [Week 3 category export](../exports/week3_category_analysis.csv) contains only `Unknown` (192 orders; 189 eligible delivered; 18 late). It cannot support comparisons between product categories. | Check product/category joins, translation coverage, and aggregation grain; rerun the export and validate category counts against the order-item source before selecting any category for intervention. | Earlier category findings in the [interim report](interim_findings.md) are from a different analysis artifact. Do not treat them as confirmation of the Week 3 export. |
+| 6 | **Treat recent monthly and weekly cohorts as incomplete until mature.** | In the [monthly export](../exports/week3_monthly_trends.csv), September and October 2018 show zero delivered orders and `NULL` average duration; August 2018 has 4,887 delivered orders and a 7.65-day mean. The [metric limitations](metric_limitations.md) note that recent purchase cohorts can have fewer completed deliveries. | Add cohort age and eligible delivered counts to trend reporting. Compare mature purchase cohorts using a consistent duration definition, and label provisional or incomplete periods. | The duration average only includes eligible delivered orders; it is not a count of delivery completions in that month. Do not interpret an unfinished cohort's missing mean as zero or as improved performance. |
+
+## Rollout and monitoring
+
+1. **Establish the baseline:** agree on the approved order-level population, timestamp rules, definitions, and source snapshot using the [KPI definitions](kpi_definitions.md). Keep missing/invalid dates and exclusions visible.
+2. **Investigate before intervening:** begin with the Northeast review and timestamp checks. Record the sample period, eligible counts, and operational hypothesis; do not present a correlation as a cause.
+3. **Pilot one controlled change at a time:** where operational owners identify a testable process change, compare the affected eligible orders with a suitable baseline or comparison group. Define the outcome and review period before the pilot.
+4. **Review data quality and outcomes together:** report late and on-time counts, their common denominator, stage-valid counts, and unresolved anomalies alongside rates.
+5. **Promote only reconciled results:** update the [Week 3 summary](week3_summary.md), dashboard, and [submission checklist](../docs/final_submission_checklist.md) only after query outputs and definitions agree and review is complete.
+
+## Success measures
+
+- Reconciled late/on-time counts and percentages that use a documented shared eligible-delivery denominator.
+- Region and state comparisons that include numerator, denominator, source period, and population.
+- Verified timestamp semantics and a documented disposition for the negative handoff intervals.
+- A category export with confirmed category coverage and order grain before category-specific decisions.
+- Time trends that expose cohort maturity, valid delivery counts, and excluded or missing values.
+
+These recommendations prioritize validation and targeted investigation because the current evidence is descriptive, several Week 3 exports remain unreconciled, and some underlying timestamps and category coverage are unresolved.

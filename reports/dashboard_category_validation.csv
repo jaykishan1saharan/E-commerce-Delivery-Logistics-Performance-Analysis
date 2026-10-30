@@ -1,0 +1,4 @@
+check,count,details
+dashboard_orders,99441,
+category_sets_matching_raw_item_products_translation,97266,Per-order distinct category sets; sorted display order ignored; itemless orders treated as Unclassified
+category_set_mismatches,2175,Category field omits or relabels raw item categories; not fully reconciled

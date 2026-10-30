@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "OrdersByCategory",
   "position": {
     "x": 480,
@@ -26,7 +26,8 @@
                   "Property": "category"
                 }
               },
-              "queryRef": "Orders.category"
+              "queryRef": "Orders.category",
+              "active": true
             }
           ]
         },
@@ -63,7 +64,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Unique orders by category segment'"
+                  "Value": "'Orders by assigned category (coverage incomplete)'"
                 }
               }
             }
