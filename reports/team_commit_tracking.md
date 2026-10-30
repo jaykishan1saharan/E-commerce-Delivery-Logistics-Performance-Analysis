@@ -143,3 +143,31 @@ Check Yashashvi's branch, inspect outstanding validation and dashboard evidence,
 - Jaykisan's `reports/thursday_chart_reconciliation.md` lists checks that must be completed before chart sign-off.
 - These statuses reflect the evidence reviewed on 29 October and should be updated if newer commits or outputs are confirmed.
 - Continue on `LavKumar`; do not merge entire teammate branches as part of this documentation update.
+
+## Friday Commit Review — 30 October 2026
+
+| Member | Branch / target | Latest confirmed commit | Files or evidence | Friday assessment |
+|---|---|---|---|---|
+| Yashashvi | `origin/Yash` | `31cf9ea` (29 Oct) | `sql/04_kpi_queries.sql`, `sql/04_kpi_queries_backup.sql` | No Friday commit or prioritized issue report found in the checked branch; final SQL work unconfirmed |
+| Meghana | `origin/main` | `212e071`, `2a9acaa` | `reports/validation_signoff.md`, updated `reports/validation_report.md` | Friday validation commits present on main; full technical review and independent rerun pending |
+| Jaykisan | `origin/jaykishan` / `origin/main` | `e6ec229` | Week 3 notebook and `reports/chart_notes.md`; merged through PR #31 | Friday commit merged; SQL reconciliation remains pending in chart notes |
+| Madhupriya | `origin/madhupriya/validation` | `616cdc0` | Power BI report definitions; recommendations and Week 3 summary files present on branch | Friday dashboard commit confirmed; recommendations/summary integration and SQL comparison unconfirmed |
+| Lav Kumar | `LavKumar` | `7dd0865` (29 Oct) | Thursday daily documentation and commit tracker | Friday documentation update being recorded |
+
+### Friday review notes
+
+- Latest checked `origin/main` HEAD: `2a9acaa`.
+- Jaykisan's Friday commit `e6ec229` is included in main through PR #31.
+- Meghana's Friday commits `212e071` and `2a9acaa` are present in main.
+- Madhupriya's Friday commit `616cdc0` is on her validation branch; do not describe it as merged into main without confirming a merge.
+- The checked Yash branch did not show a Friday commit or `reports/prioritized_issues.md`.
+- Jaykisan's final chart notes explicitly state that SQL reconciliation is pending.
+- Meghana's sign-off reports zero mismatches for the two on-time flags, but this does not by itself establish that every KPI and sensitivity check has passed.
+- Continue documenting actual evidence and outstanding work separately.
+
+### Integration and handover policy
+
+- Continue using `LavKumar` for Member 5 documentation.
+- Do not merge entire teammate branches just to update documentation.
+- Use pull requests and the team's agreed review process for integrating technical deliverables.
+- Do not mark Week 3 complete until SQL, Python, chart, validation, dashboard, and README workflows have been checked against consistent definitions and outputs.
