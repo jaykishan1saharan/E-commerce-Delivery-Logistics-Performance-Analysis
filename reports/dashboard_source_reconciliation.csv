@@ -1,0 +1,143 @@
+visual_name,segment,dashboard_orders,source_orders,order_difference,dashboard_average_days,source_average_days,average_days_difference
+Average calendar delivery days by purchase month,2016-09,1,1,0,54.81,54.81319444444444,-0.0031944444444391706
+Average calendar delivery days by purchase month,2016-10,265,265,0,19.600528301886794,19.600558787561145,-3.0485674351155012e-05
+Average calendar delivery days by purchase month,2016-12,1,1,0,4.69,4.693020833333334,-0.0030208333333332504
+Average calendar delivery days by purchase month,2017-01,750,750,0,12.647,12.647043518518519,-4.351851851858157e-05
+Average calendar delivery days by purchase month,2017-02,1653,1653,0,13.168777979431338,13.168825248986131,-4.7269554793061275e-05
+Average calendar delivery days by purchase month,2017-03,2546,2546,0,12.951229379418697,12.951184487831313,4.4891587384299214e-05
+Average calendar delivery days by purchase month,2017-04,2303,2303,0,14.917798523664786,14.91791250040205,-0.00011397673726420976
+Average calendar delivery days by purchase month,2017-05,3545,3545,0,11.32233568406206,11.322362975369588,-2.729130752854303e-05
+Average calendar delivery days by purchase month,2017-06,3135,3135,0,12.011610845295056,12.01157270438301,3.81409120464582e-05
+Average calendar delivery days by purchase month,2017-07,3872,3872,0,11.592766012396694,11.592732387200606,3.362519608884895e-05
+Average calendar delivery days by purchase month,2017-08,4193,4193,0,11.147185785833532,11.147124655510508,6.113032302401677e-05
+Average calendar delivery days by purchase month,2017-09,4150,4150,0,11.851036144578314,11.85100652889335,2.961568496395728e-05
+Average calendar delivery days by purchase month,2017-10,4478,4478,0,11.856674854845913,11.856699698526127,-2.4843680213493258e-05
+Average calendar delivery days by purchase month,2017-11,7288,7288,0,15.161103183315038,15.161131699241778,-2.8515926739913766e-05
+Average calendar delivery days by purchase month,2017-12,5513,5513,0,15.394875748231453,15.394918530107287,-4.2781875833952654e-05
+Average calendar delivery days by purchase month,2018-01,7069,7069,0,14.080513509690196,14.080562613956085,-4.910426588899952e-05
+Average calendar delivery days by purchase month,2018-02,6555,6555,0,16.94512128146453,16.945137568155495,-1.6286690964761874e-05
+Average calendar delivery days by purchase month,2018-03,7003,7003,0,16.301383692703126,16.30141017440938,-2.6481706253633774e-05
+Average calendar delivery days by purchase month,2018-04,6798,6798,0,11.499177699323331,11.499241053673193,-6.335434986226574e-05
+Average calendar delivery days by purchase month,2018-05,6749,6749,0,11.419014668839827,11.419028935356678,-1.426651685143554e-05
+Average calendar delivery days by purchase month,2018-06,6096,6096,0,9.239253608923883,9.239216293167347,3.73157565363158e-05
+Average calendar delivery days by purchase month,2018-07,6156,6156,0,8.958622482131254,8.958636237154959,-1.375502370493109e-05
+Average calendar delivery days by purchase month,2018-08,6351,6351,0,7.732747598803338,7.732779720458137,-3.212165479915541e-05
+Average calendar delivery days by purchase month,2018-09,0,0,0,,,
+Average calendar delivery days by purchase month,2018-10,0,0,0,,,
+Average calendar delivery days by region,Central-West,5624,5624,0,15.01778627311522,15.017778740911966,7.532203254001502e-06
+Average calendar delivery days by region,North,1796,1796,0,22.59228841870824,22.592320750072176,-3.233136393632208e-05
+Average calendar delivery days by region,Northeast,9044,9044,0,20.00502543122512,20.005012912694315,1.2518530805749606e-05
+Average calendar delivery days by region,South,13813,13813,0,14.032349960182437,14.03235324395832,-3.283775884099782e-06
+Average calendar delivery days by region,Southeast,66193,66193,0,10.75188615110359,10.751909954252744,-2.3803149153067693e-05
+Orders by category,Unclassified,2190,2190,0,,,
+Orders by category,agro_industry_and_commerce,182,182,0,,,
+Orders by category,air_conditioning,252,252,0,,,
+Orders by category,art,200,200,0,,,
+Orders by category,arts_and_craftmanship,22,22,0,,,
+Orders by category,audio,346,346,0,,,
+Orders by category,auto,3880,3880,0,,,
+Orders by category,baby,2837,2837,0,,,
+Orders by category,bed_bath_table,9328,9328,0,,,
+Orders by category,books_general_interest,509,509,0,,,
+Orders by category,books_imported,53,53,0,,,
+Orders by category,books_technical,258,258,0,,,
+Orders by category,cds_dvds_musicals,12,12,0,,,
+Orders by category,christmas_supplies,127,127,0,,,
+Orders by category,cine_photo,64,64,0,,,
+Orders by category,computers,181,181,0,,,
+Orders by category,computers_accessories,6670,6670,0,,,
+Orders by category,consoles_games,1057,1057,0,,,
+Orders by category,construction_tools_construction,736,736,0,,,
+Orders by category,construction_tools_lights,232,232,0,,,
+Orders by category,construction_tools_safety,162,162,0,,,
+Orders by category,cool_stuff,3603,3603,0,,,
+Orders by category,costruction_tools_garden,190,190,0,,,
+Orders by category,costruction_tools_tools,97,97,0,,,
+Orders by category,diapers_and_hygiene,27,27,0,,,
+Orders by category,drinks,292,292,0,,,
+Orders by category,dvds_blu_ray,58,58,0,,,
+Orders by category,electronics,2535,2535,0,,,
+Orders by category,fashio_female_clothing,38,38,0,,,
+Orders by category,fashion_bags_accessories,1855,1855,0,,,
+Orders by category,fashion_childrens_clothes,8,8,0,,,
+Orders by category,fashion_male_clothing,112,112,0,,,
+Orders by category,fashion_shoes,238,238,0,,,
+Orders by category,fashion_sport,26,26,0,,,
+Orders by category,fashion_underwear_beach,121,121,0,,,
+Orders by category,fixed_telephony,217,217,0,,,
+Orders by category,flowers,29,29,0,,,
+Orders by category,food,445,445,0,,,
+Orders by category,food_drink,225,225,0,,,
+Orders by category,furniture_bedroom,95,95,0,,,
+Orders by category,furniture_decor,6330,6330,0,,,
+Orders by category,furniture_living_room,417,417,0,,,
+Orders by category,furniture_mattress_and_upholstery,38,38,0,,,
+Orders by category,garden_tools,3469,3469,0,,,
+Orders by category,health_beauty,8801,8801,0,,,
+Orders by category,home_appliances,764,764,0,,,
+Orders by category,home_appliances_2,234,234,0,,,
+Orders by category,home_comfort_2,22,22,0,,,
+Orders by category,home_confort,375,375,0,,,
+Orders by category,home_construction,479,479,0,,,
+Orders by category,housewares,5821,5821,0,,,
+Orders by category,industry_commerce_and_business,233,233,0,,,
+Orders by category,kitchen_dining_laundry_garden_furniture,244,244,0,,,
+Orders by category,la_cuisine,13,13,0,,,
+Orders by category,luggage_accessories,1027,1027,0,,,
+Orders by category,market_place,274,274,0,,,
+Orders by category,music,36,36,0,,,
+Orders by category,musical_instruments,625,625,0,,,
+Orders by category,office_furniture,1270,1270,0,,,
+Orders by category,party_supplies,38,38,0,,,
+Orders by category,pc_gamer,8,8,0,,,
+Orders by category,perfumery,3145,3145,0,,,
+Orders by category,pet_shop,1704,1704,0,,,
+Orders by category,portateis_cozinha_e_preparadores_de_alimentos,14,14,0,,,
+Orders by category,security_and_services,2,2,0,,,
+Orders by category,signaling_and_security,139,139,0,,,
+Orders by category,small_appliances,627,627,0,,,
+Orders by category,small_appliances_home_oven_and_coffee,75,75,0,,,
+Orders by category,sports_leisure,7683,7683,0,,,
+Orders by category,stationery,2291,2291,0,,,
+Orders by category,tablets_printing_image,78,78,0,,,
+Orders by category,telephony,4179,4179,0,,,
+Orders by category,toys,3870,3870,0,,,
+Orders by category,watches_gifts,5607,5607,0,,,
+Orders by purchase month,2016-09,4,4,0,,,
+Orders by purchase month,2016-10,324,324,0,,,
+Orders by purchase month,2016-12,1,1,0,,,
+Orders by purchase month,2017-01,800,800,0,,,
+Orders by purchase month,2017-02,1780,1780,0,,,
+Orders by purchase month,2017-03,2682,2682,0,,,
+Orders by purchase month,2017-04,2404,2404,0,,,
+Orders by purchase month,2017-05,3700,3700,0,,,
+Orders by purchase month,2017-06,3245,3245,0,,,
+Orders by purchase month,2017-07,4026,4026,0,,,
+Orders by purchase month,2017-08,4331,4331,0,,,
+Orders by purchase month,2017-09,4285,4285,0,,,
+Orders by purchase month,2017-10,4631,4631,0,,,
+Orders by purchase month,2017-11,7544,7544,0,,,
+Orders by purchase month,2017-12,5673,5673,0,,,
+Orders by purchase month,2018-01,7269,7269,0,,,
+Orders by purchase month,2018-02,6728,6728,0,,,
+Orders by purchase month,2018-03,7211,7211,0,,,
+Orders by purchase month,2018-04,6939,6939,0,,,
+Orders by purchase month,2018-05,6873,6873,0,,,
+Orders by purchase month,2018-06,6167,6167,0,,,
+Orders by purchase month,2018-07,6292,6292,0,,,
+Orders by purchase month,2018-08,6512,6512,0,,,
+Orders by purchase month,2018-09,16,16,0,,,
+Orders by purchase month,2018-10,4,4,0,,,
+Orders by region,Central-West,5782,5782,0,,,
+Orders by region,North,1851,1851,0,,,
+Orders by region,Northeast,9394,9394,0,,,
+Orders by region,South,14148,14148,0,,,
+Orders by region,Southeast,68266,68266,0,,,
+Orders by status,approved,2,2,0,,,
+Orders by status,canceled,625,625,0,,,
+Orders by status,created,5,5,0,,,
+Orders by status,delivered,96478,96478,0,,,
+Orders by status,invoiced,314,314,0,,,
+Orders by status,processing,301,301,0,,,
+Orders by status,shipped,1107,1107,0,,,
+Orders by status,unavailable,609,609,0,,,

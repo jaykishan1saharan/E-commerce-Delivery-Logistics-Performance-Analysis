@@ -1,0 +1,9 @@
+check,segment,live_model_value,source_sql_value,difference,status
+Loaded order rows,All,99441,99441,0,PASS
+Distinct order IDs,All,99441,99441,0,PASS
+Eligible elapsed-duration orders,Central-West,5624,5624,0,PASS
+Eligible elapsed-duration orders,North,1796,1796,0,PASS
+Eligible elapsed-duration orders,Northeast,9044,9044,0,PASS
+Eligible elapsed-duration orders,South,13813,13813,0,PASS
+Eligible elapsed-duration orders,Southeast,66193,66193,0,PASS
+Average elapsed delivery days,All,12.5582,,,LIVE_MODEL_QUERY
