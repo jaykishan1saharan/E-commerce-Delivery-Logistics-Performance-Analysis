@@ -1,0 +1,143 @@
+visual_name,segment,distinct_orders,eligible_delivery_orders,average_delivery_days
+Average elapsed delivery days by purchase month,2016-09,4,1,54.81
+Average elapsed delivery days by purchase month,2016-10,324,265,19.600528301886794
+Average elapsed delivery days by purchase month,2016-12,1,1,4.69
+Average elapsed delivery days by purchase month,2017-01,800,750,12.647
+Average elapsed delivery days by purchase month,2017-02,1780,1653,13.168777979431338
+Average elapsed delivery days by purchase month,2017-03,2682,2546,12.951229379418697
+Average elapsed delivery days by purchase month,2017-04,2404,2303,14.917798523664786
+Average elapsed delivery days by purchase month,2017-05,3700,3545,11.32233568406206
+Average elapsed delivery days by purchase month,2017-06,3245,3135,12.011610845295056
+Average elapsed delivery days by purchase month,2017-07,4026,3872,11.592766012396694
+Average elapsed delivery days by purchase month,2017-08,4331,4193,11.147185785833532
+Average elapsed delivery days by purchase month,2017-09,4285,4150,11.851036144578314
+Average elapsed delivery days by purchase month,2017-10,4631,4478,11.856674854845913
+Average elapsed delivery days by purchase month,2017-11,7544,7288,15.161103183315038
+Average elapsed delivery days by purchase month,2017-12,5673,5513,15.394875748231453
+Average elapsed delivery days by purchase month,2018-01,7269,7069,14.080513509690196
+Average elapsed delivery days by purchase month,2018-02,6728,6555,16.94512128146453
+Average elapsed delivery days by purchase month,2018-03,7211,7003,16.301383692703126
+Average elapsed delivery days by purchase month,2018-04,6939,6798,11.499177699323331
+Average elapsed delivery days by purchase month,2018-05,6873,6749,11.419014668839827
+Average elapsed delivery days by purchase month,2018-06,6167,6096,9.239253608923883
+Average elapsed delivery days by purchase month,2018-07,6292,6156,8.958622482131254
+Average elapsed delivery days by purchase month,2018-08,6512,6351,7.732747598803338
+Average elapsed delivery days by purchase month,2018-09,16,0,
+Average elapsed delivery days by purchase month,2018-10,4,0,
+Average elapsed delivery days by region,Central-West,5782,5624,15.01778627311522
+Average elapsed delivery days by region,North,1851,1796,22.59228841870824
+Average elapsed delivery days by region,Northeast,9394,9044,20.00502543122512
+Average elapsed delivery days by region,South,14148,13813,14.032349960182437
+Average elapsed delivery days by region,Southeast,68266,66193,10.75188615110359
+Orders by assigned category (coverage incomplete),Unclassified,2190,,
+Orders by assigned category (coverage incomplete),agro_industry_and_commerce,182,,
+Orders by assigned category (coverage incomplete),air_conditioning,252,,
+Orders by assigned category (coverage incomplete),art,200,,
+Orders by assigned category (coverage incomplete),arts_and_craftmanship,22,,
+Orders by assigned category (coverage incomplete),audio,346,,
+Orders by assigned category (coverage incomplete),auto,3880,,
+Orders by assigned category (coverage incomplete),baby,2837,,
+Orders by assigned category (coverage incomplete),bed_bath_table,9328,,
+Orders by assigned category (coverage incomplete),books_general_interest,509,,
+Orders by assigned category (coverage incomplete),books_imported,53,,
+Orders by assigned category (coverage incomplete),books_technical,258,,
+Orders by assigned category (coverage incomplete),cds_dvds_musicals,12,,
+Orders by assigned category (coverage incomplete),christmas_supplies,127,,
+Orders by assigned category (coverage incomplete),cine_photo,64,,
+Orders by assigned category (coverage incomplete),computers,181,,
+Orders by assigned category (coverage incomplete),computers_accessories,6670,,
+Orders by assigned category (coverage incomplete),consoles_games,1057,,
+Orders by assigned category (coverage incomplete),construction_tools_construction,736,,
+Orders by assigned category (coverage incomplete),construction_tools_lights,232,,
+Orders by assigned category (coverage incomplete),construction_tools_safety,162,,
+Orders by assigned category (coverage incomplete),cool_stuff,3603,,
+Orders by assigned category (coverage incomplete),costruction_tools_garden,190,,
+Orders by assigned category (coverage incomplete),costruction_tools_tools,97,,
+Orders by assigned category (coverage incomplete),diapers_and_hygiene,27,,
+Orders by assigned category (coverage incomplete),drinks,292,,
+Orders by assigned category (coverage incomplete),dvds_blu_ray,58,,
+Orders by assigned category (coverage incomplete),electronics,2535,,
+Orders by assigned category (coverage incomplete),fashio_female_clothing,38,,
+Orders by assigned category (coverage incomplete),fashion_bags_accessories,1855,,
+Orders by assigned category (coverage incomplete),fashion_childrens_clothes,8,,
+Orders by assigned category (coverage incomplete),fashion_male_clothing,112,,
+Orders by assigned category (coverage incomplete),fashion_shoes,238,,
+Orders by assigned category (coverage incomplete),fashion_sport,26,,
+Orders by assigned category (coverage incomplete),fashion_underwear_beach,121,,
+Orders by assigned category (coverage incomplete),fixed_telephony,217,,
+Orders by assigned category (coverage incomplete),flowers,29,,
+Orders by assigned category (coverage incomplete),food,445,,
+Orders by assigned category (coverage incomplete),food_drink,225,,
+Orders by assigned category (coverage incomplete),furniture_bedroom,95,,
+Orders by assigned category (coverage incomplete),furniture_decor,6330,,
+Orders by assigned category (coverage incomplete),furniture_living_room,417,,
+Orders by assigned category (coverage incomplete),furniture_mattress_and_upholstery,38,,
+Orders by assigned category (coverage incomplete),garden_tools,3469,,
+Orders by assigned category (coverage incomplete),health_beauty,8801,,
+Orders by assigned category (coverage incomplete),home_appliances,764,,
+Orders by assigned category (coverage incomplete),home_appliances_2,234,,
+Orders by assigned category (coverage incomplete),home_comfort_2,22,,
+Orders by assigned category (coverage incomplete),home_confort,375,,
+Orders by assigned category (coverage incomplete),home_construction,479,,
+Orders by assigned category (coverage incomplete),housewares,5821,,
+Orders by assigned category (coverage incomplete),industry_commerce_and_business,233,,
+Orders by assigned category (coverage incomplete),kitchen_dining_laundry_garden_furniture,244,,
+Orders by assigned category (coverage incomplete),la_cuisine,13,,
+Orders by assigned category (coverage incomplete),luggage_accessories,1027,,
+Orders by assigned category (coverage incomplete),market_place,274,,
+Orders by assigned category (coverage incomplete),music,36,,
+Orders by assigned category (coverage incomplete),musical_instruments,625,,
+Orders by assigned category (coverage incomplete),office_furniture,1270,,
+Orders by assigned category (coverage incomplete),party_supplies,38,,
+Orders by assigned category (coverage incomplete),pc_gamer,8,,
+Orders by assigned category (coverage incomplete),perfumery,3145,,
+Orders by assigned category (coverage incomplete),pet_shop,1704,,
+Orders by assigned category (coverage incomplete),portateis_cozinha_e_preparadores_de_alimentos,14,,
+Orders by assigned category (coverage incomplete),security_and_services,2,,
+Orders by assigned category (coverage incomplete),signaling_and_security,139,,
+Orders by assigned category (coverage incomplete),small_appliances,627,,
+Orders by assigned category (coverage incomplete),small_appliances_home_oven_and_coffee,75,,
+Orders by assigned category (coverage incomplete),sports_leisure,7683,,
+Orders by assigned category (coverage incomplete),stationery,2291,,
+Orders by assigned category (coverage incomplete),tablets_printing_image,78,,
+Orders by assigned category (coverage incomplete),telephony,4179,,
+Orders by assigned category (coverage incomplete),toys,3870,,
+Orders by assigned category (coverage incomplete),watches_gifts,5607,,
+Unique order volume by purchase month,2016-09,4,,
+Unique order volume by purchase month,2016-10,324,,
+Unique order volume by purchase month,2016-12,1,,
+Unique order volume by purchase month,2017-01,800,,
+Unique order volume by purchase month,2017-02,1780,,
+Unique order volume by purchase month,2017-03,2682,,
+Unique order volume by purchase month,2017-04,2404,,
+Unique order volume by purchase month,2017-05,3700,,
+Unique order volume by purchase month,2017-06,3245,,
+Unique order volume by purchase month,2017-07,4026,,
+Unique order volume by purchase month,2017-08,4331,,
+Unique order volume by purchase month,2017-09,4285,,
+Unique order volume by purchase month,2017-10,4631,,
+Unique order volume by purchase month,2017-11,7544,,
+Unique order volume by purchase month,2017-12,5673,,
+Unique order volume by purchase month,2018-01,7269,,
+Unique order volume by purchase month,2018-02,6728,,
+Unique order volume by purchase month,2018-03,7211,,
+Unique order volume by purchase month,2018-04,6939,,
+Unique order volume by purchase month,2018-05,6873,,
+Unique order volume by purchase month,2018-06,6167,,
+Unique order volume by purchase month,2018-07,6292,,
+Unique order volume by purchase month,2018-08,6512,,
+Unique order volume by purchase month,2018-09,16,,
+Unique order volume by purchase month,2018-10,4,,
+Unique orders by region,Central-West,5782,,
+Unique orders by region,North,1851,,
+Unique orders by region,Northeast,9394,,
+Unique orders by region,South,14148,,
+Unique orders by region,Southeast,68266,,
+Unique orders by source status,approved,2,,
+Unique orders by source status,canceled,625,,
+Unique orders by source status,created,5,,
+Unique orders by source status,delivered,96478,,
+Unique orders by source status,invoiced,314,,
+Unique orders by source status,processing,301,,
+Unique orders by source status,shipped,1107,,
+Unique orders by source status,unavailable,609,,
