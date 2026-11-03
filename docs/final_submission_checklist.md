@@ -79,3 +79,46 @@ The following statuses reflect the Friday Git and file review. They do not repla
 - [ ] Obtain team-lead approval before marking the project complete.
 
 **Handover status:** Substantial Week 3 work is committed, but final analytical reconciliation, integration checks, reproducibility, and approval remain open.
+
+## Week 4 Progress Review — 2–3 November 2026
+
+The following entries record deliverables identified in Git history. A committed file is not automatically considered tested or approved.
+
+### Week 4 deliverables identified
+
+- [x] KPI definitions file added: `docs/KPI_definitions.md` (commit `1ee269e`).
+- [x] Dashboard-validation SQL file added: `sql/08_week4_dashboard_validation.sql` (commit `1ee269e`).
+- [x] Cancellation analysis report added: `reports/cancellation_analysis.md` (commit `0d73386`).
+- [x] Customer-rating analysis report added: `reports/customer_rating_analysis.md` (commit `0d73386`).
+- [x] Cancellation and rating SQL file added and subsequently updated: `sql/10_cancellation_rating_analysis.sql`.
+- [x] Cancellation analysis CSV export added: `data/exports/week4_cancellation_analysis.csv`.
+- [x] Customer-rating analysis CSV export added: `data/exports/week4_rating_analysis.csv`.
+- [x] Madhupriya's Week 4 cancellation and rating work merged through PR #36.
+- [x] Power BI dashboard PBIX, README, DAX documentation, and screenshots committed on `origin/member2-powerbi-dashboard` (commit `80f28ea`).
+
+### Week 4 technical verification still required
+
+- [ ] Execute `sql/08_week4_dashboard_validation.sql` and record its results.
+- [ ] Review KPI definitions against the final KPI queries and documented denominators.
+- [ ] Execute `sql/10_cancellation_rating_analysis.sql` and inspect its results.
+- [ ] Reconcile cancellation and rating CSV exports with the SQL query outputs.
+- [ ] Review the Power BI PBIX file and confirm that it opens successfully.
+- [ ] Review dashboard filters, pages, DAX measures, and displayed KPI values.
+- [ ] Reconcile Power BI measures against approved SQL outputs.
+- [ ] Confirm whether the dashboard feature branch is merged into `main`.
+- [ ] Reconcile the late-delivery discrepancy and other inconsistent KPI figures.
+- [ ] Run the complete workflow from the documented setup instructions.
+- [ ] Update the README with the actual final execution order and output locations.
+- [ ] Obtain team-lead review and approval.
+
+### Integration status
+
+- [x] PR #34 merge recorded in main history.
+- [x] PR #32 merge recorded in main history.
+- [x] PR #36 merge recorded in main history.
+- [x] Confirm integration of `80f28ea` and the Power BI dashboard into `main`.
+- [ ] Confirm all final Week 4 deliverables are available on the approved submission branch.
+
+**Week 4 status:** Deliverables have been added and multiple pull requests have been merged. Final technical verification, dashboard integration confirmation, KPI reconciliation, reproducibility checks, and team-lead approval remain outstanding.
+
+**Documentation owner:** Lav Kumar — Member 5, Documentation and Coordination.
