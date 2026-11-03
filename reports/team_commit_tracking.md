@@ -171,3 +171,39 @@ Check Yashashvi's branch, inspect outstanding validation and dashboard evidence,
 - Do not merge entire teammate branches just to update documentation.
 - Use pull requests and the team's agreed review process for integrating technical deliverables.
 - Do not mark Week 3 complete until SQL, Python, chart, validation, dashboard, and README workflows have been checked against consistent definitions and outputs.
+
+## Monday and Tuesday Commit Review — 2–3 November 2026
+
+This section records the latest Week 4 evidence reviewed from remote branches and main-branch history.
+
+### Monday — 2 November 2026
+
+| Member | Branch / commit | Committed work | Integration status |
+|---|---|---|---|
+| Yashashvi | `1ee269e` on `origin/member1-fix-kpi-query` | `docs/KPI_definitions.md`; `sql/08_week4_dashboard_validation.sql` | PR #34 merge recorded in main history |
+| Madhupriya | PR #32 from `madhupriya/validation` | Changes included in the merged pull request | Merge commit `1e61eaf` recorded |
+| Meghana | No separate Monday commit identified | No additional Monday deliverable confirmed | Not assessed |
+| Jaykishan | No separate Monday commit identified | No additional Monday deliverable confirmed | Not assessed |
+| Lav Kumar | `LavKumar` | No Monday commit identified in the checked branch history | Documentation update pending |
+
+**Author note:** Commit `1ee269e` displays the author name `developer69007`; its author email is `yashashvi103568a@gmail.com`, which associates it with Yashashvi's previously identified account.
+
+### Tuesday — 3 November 2026
+
+| Member | Branch / commit | Committed work | Integration status |
+|---|---|---|---|
+| Madhupriya | `0d73386`, `ff33596` on `madhupriya/validation` | Cancellation and customer-rating reports, SQL analysis, and two CSV exports | PR #36 merged into main through `45d27fa` |
+| Meghana | `80f28ea` on `member2-powerbi-dashboard` | Power BI PBIX, dashboard README, DAX measures documentation, and screenshots | Present on feature branch; merge into main not confirmed |
+| Yashashvi | No separate Tuesday commit identified | No additional Tuesday deliverable confirmed | Not assessed |
+| Jaykishan | No separate Tuesday commit identified | No additional Tuesday deliverable confirmed | Not assessed |
+| Lav Kumar | `LavKumar` | No Tuesday commit identified in the checked branch history | Documentation update pending |
+
+### Week 4 integration and verification notes
+
+- PR #34 and PR #32 merge commits are present in the checked main history.
+- Madhupriya's cancellation and customer-rating work was merged through PR #36.
+- Meghana's dashboard commit is available on `origin/member2-powerbi-dashboard`; do not describe it as merged into main until verified.
+- The presence of a PBIX file and screenshots does not establish that dashboard measures have been reconciled with SQL outputs.
+- SQL files and CSV exports must be executed or checked against reproducible results before analytical sign-off.
+- No separate commits were identified for some members in the queried branches. This does not establish that they performed no offline or uncommitted work.
+- Lav Kumar's role remains documentation, coordination, progress tracking, and integration-status recording. This review does not claim authorship of teammates' technical deliverables.

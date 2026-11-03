@@ -166,3 +166,51 @@ Commit history and file presence establish that changes were committed, not that
 Week 3 analysis, validation, notebook, chart, and dashboard work has received substantial commits. However, final analytical sign-off remains pending because chart-to-SQL reconciliation is still open, some member deliverables are not confirmed on `main`, and the final end-to-end workflow has not been verified here.
 
 **Evidence limitation:** Git commit history and file presence confirm committed changes, not analytical correctness, successful execution, or final approval. Reported validation totals are attributed to the relevant member's sign-off and have not been independently rerun as part of this documentation review.
+
+## Monday Progress Update — 2 November 2026
+
+**Owner:** Member 5 — Documentation and Coordination
+
+### Team progress reviewed
+
+- **Yashashvi:** Commit `1ee269e` added `docs/KPI_definitions.md` and `sql/08_week4_dashboard_validation.sql`. Git author email is associated with Yashashvi's previously identified account. The commit is on `origin/member1-fix-kpi-query`.
+- **Yashashvi:** PR #34 was merged, and PR #32 from `madhupriya/validation` was also merged. Both merge commits were visible in the checked main-branch history.
+- **Meghana:** No separately authored Monday commit was identified in the checked branches.
+- **Jaykishan:** No separately authored Monday commit was identified in the checked branches.
+- **Madhupriya:** Her validation branch was integrated through PR #32; the individual Monday contribution should be confirmed from the PR contents if a detailed task breakdown is required.
+- **Lav Kumar:** Reviewed the available team commit history and recorded the Week 4 progress and integration status.
+
+### Monday outstanding checks
+
+- Execute and review the Week 4 dashboard-validation SQL.
+- Review KPI definitions against the approved KPI queries.
+- Confirm the validation SQL results and document any failures or differences.
+- Verify the contents and integration status of the files merged through PR #32.
+
+**Evidence limitation:** Commit and merge history confirms repository changes, not successful SQL execution or analytical correctness.
+
+## Tuesday Progress Update — 3 November 2026
+
+**Owner:** Member 5 — Documentation and Coordination
+
+### Team progress reviewed
+
+- **Madhupriya:** Commit `0d73386` added `reports/cancellation_analysis.md`, `reports/customer_rating_analysis.md`, and `sql/10_cancellation_rating_analysis.sql`.
+- **Madhupriya:** Commit `ff33596` added `data/exports/week4_cancellation_analysis.csv` and `data/exports/week4_rating_analysis.csv`, and updated the cancellation/rating SQL script.
+- **Madhupriya:** PR #36 was merged into `main` through merge commit `45d27fa`.
+- **Meghana:** Commit `80f28ea` on `origin/member2-powerbi-dashboard` added `powerbi/Olist_Logistics_Dashboard.pbix`, `powerbi/README.md`, `powerbi/dax/measures_documentation.md`, and dashboard screenshots.
+- **Meghana:** The dashboard commit is confirmed on the remote feature branch. Its integration into `main` has not been established by the checked Git output.
+- **Yashashvi and Jaykishan:** No separately authored Tuesday commits were identified in the checked branches.
+- **Lav Kumar:** Reviewed Tuesday commits, dashboard files, and integration status for the documentation update.
+
+### Tuesday outstanding checks
+
+1. Execute and validate the cancellation and customer-rating SQL.
+2. Check that the exported CSV results match the SQL output.
+3. Review the Power BI dashboard pages, filters, DAX measures, and KPI definitions.
+4. Compare dashboard KPI values with the approved SQL outputs.
+5. Confirm whether the dashboard branch will be merged into `main` through the team's review process.
+6. Reconcile the previously recorded late-delivery discrepancy and other KPI population differences.
+7. Run the complete documented workflow before final sign-off.
+
+**Evidence limitation:** File additions, commit history, and PR merges confirm repository activity. They do not independently prove that the SQL scripts, CSV exports, or Power BI measures have been tested and approved.
