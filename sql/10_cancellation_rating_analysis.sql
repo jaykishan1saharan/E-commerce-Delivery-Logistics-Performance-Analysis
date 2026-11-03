@@ -24,6 +24,55 @@ FROM orders_clean
 GROUP BY order_status
 ORDER BY order_count DESC;
 
+-- Status-specific counts and status share of all orders, by customer state.
+-- This preserves every order and assigns missing/unmatched states to Unknown.
+WITH orders_by_state AS (
+    SELECT
+        o.order_id,
+        o.order_status,
+        COALESCE(NULLIF(UPPER(TRIM(c.customer_state)), ''), 'Unknown')
+            AS customer_state
+    FROM orders_clean AS o
+    LEFT JOIN customers_clean AS c
+        ON c.customer_id = o.customer_id
+)
+SELECT
+    customer_state,
+    order_status,
+    COUNT(*) AS order_count,
+    SUM(order_status = 'canceled') AS canceled_orders_in_status,
+    ROUND(
+        100.0 * COUNT(*) /
+            NULLIF(SUM(COUNT(*)) OVER (PARTITION BY customer_state), 0),
+        2
+    ) AS pct_of_state_orders
+FROM orders_by_state
+GROUP BY customer_state, order_status
+ORDER BY customer_state, order_count DESC, order_status;
+
+-- Cancellation rate by customer state. Denominator is all orders assigned
+-- to that state, including unavailable and non-final statuses.
+WITH orders_by_state AS (
+    SELECT
+        o.order_status,
+        COALESCE(NULLIF(UPPER(TRIM(c.customer_state)), ''), 'Unknown')
+            AS customer_state
+    FROM orders_clean AS o
+    LEFT JOIN customers_clean AS c
+        ON c.customer_id = o.customer_id
+)
+SELECT
+    customer_state,
+    COUNT(*) AS total_orders,
+    SUM(order_status = 'canceled') AS canceled_orders,
+    ROUND(
+        100.0 * SUM(order_status = 'canceled') / NULLIF(COUNT(*), 0),
+        2
+    ) AS cancellation_rate_pct
+FROM orders_by_state
+GROUP BY customer_state
+ORDER BY cancellation_rate_pct DESC, total_orders DESC;
+
 -- 2. Cancellation rate:
 --    numerator = orders whose normalized status is exactly 'canceled';
 --    denominator = all unique orders, including unavailable and
@@ -104,6 +153,77 @@ LEFT JOIN orders_clean AS o
     ON o.order_id = NULLIF(TRIM(r.order_id), '')
 WHERE NULLIF(TRIM(r.order_id), '') IS NOT NULL
   AND o.order_id IS NULL;
+
+-- 4B. Review-score distribution at the source review-row grain.
+SELECT
+    CASE
+        WHEN review_score BETWEEN 1 AND 5 THEN CAST(review_score AS CHAR)
+        WHEN review_score IS NULL THEN 'missing_score'
+        ELSE 'invalid_score'
+    END AS score_category,
+    COUNT(*) AS review_records,
+    COUNT(DISTINCT NULLIF(TRIM(order_id), '')) AS distinct_orders,
+    ROUND(
+        100.0 * COUNT(*) / NULLIF((SELECT COUNT(*) FROM reviews_stage), 0),
+        2
+    ) AS pct_of_review_records
+FROM reviews_stage
+GROUP BY score_category
+ORDER BY
+    CASE
+        WHEN score_category REGEXP '^[1-5]$' THEN CAST(score_category AS UNSIGNED)
+        WHEN score_category = 'missing_score' THEN 6
+        ELSE 7
+    END;
+
+-- 4C. Order-level review coverage by status. An order is covered when it has
+--     at least one linked review row; this is separate from score validity.
+WITH review_orders AS (
+    SELECT DISTINCT NULLIF(TRIM(order_id), '') AS order_id
+    FROM reviews_stage
+    WHERE NULLIF(TRIM(order_id), '') IS NOT NULL
+)
+SELECT
+    o.order_status,
+    COUNT(*) AS total_orders,
+    SUM(r.order_id IS NOT NULL) AS orders_with_review,
+    SUM(r.order_id IS NULL) AS orders_without_review,
+    ROUND(
+        100.0 * SUM(r.order_id IS NOT NULL) / NULLIF(COUNT(*), 0),
+        2
+    ) AS review_coverage_pct
+FROM orders_clean AS o
+LEFT JOIN review_orders AS r
+    ON r.order_id = o.order_id
+GROUP BY o.order_status
+ORDER BY o.order_status;
+
+-- 4D. Overall order-level average rating and review-score coverage.
+--     Multiple valid review rows are averaged per order before averaging
+--     across orders, so a multi-review order does not receive extra weight.
+WITH review_by_order AS (
+    SELECT
+        NULLIF(TRIM(order_id), '') AS order_id,
+        AVG(review_score) AS avg_review_score
+    FROM reviews_stage
+    WHERE NULLIF(TRIM(order_id), '') IS NOT NULL
+      AND review_score BETWEEN 1 AND 5
+    GROUP BY NULLIF(TRIM(order_id), '')
+)
+SELECT
+    (SELECT COUNT(*) FROM orders_clean) AS total_orders,
+    COUNT(r.order_id) AS orders_with_valid_rating,
+    (SELECT COUNT(*) FROM orders_clean) - COUNT(r.order_id)
+        AS orders_without_valid_rating,
+    ROUND(AVG(r.avg_review_score), 2) AS mean_order_level_review_score,
+    ROUND(
+        100.0 * COUNT(r.order_id) /
+            NULLIF((SELECT COUNT(*) FROM orders_clean), 0),
+        2
+    ) AS valid_rating_coverage_pct
+FROM orders_clean AS o
+LEFT JOIN review_by_order AS r
+    ON r.order_id = o.order_id;
 
 -- 5. Comparison population:
 --    delivered orders with actual and estimated dates, classified by
