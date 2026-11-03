@@ -116,7 +116,7 @@ The following entries record deliverables identified in Git history. A committed
 - [x] PR #34 merge recorded in main history.
 - [x] PR #32 merge recorded in main history.
 - [x] PR #36 merge recorded in main history.
-- [ ] Confirm integration of `80f28ea` and the Power BI dashboard into `main`.
+- [x] Confirm integration of `80f28ea` and the Power BI dashboard into `main`.
 - [ ] Confirm all final Week 4 deliverables are available on the approved submission branch.
 
 **Week 4 status:** Deliverables have been added and multiple pull requests have been merged. Final technical verification, dashboard integration confirmation, KPI reconciliation, reproducibility checks, and team-lead approval remain outstanding.
