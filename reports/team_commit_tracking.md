@@ -113,7 +113,7 @@ This section supplements the earlier commit history and does not replace older e
 | Member | Branch | Commit | Evidence | Assessment |
 |---|---|---|---|---|
 | Yashashvi | `YY-M1` | New Wednesday commit not yet confirmed | She said she will commit on 29 October | Pending |
-| Meghana | `analysis` | `c1abc4a` | `validate_flags.py`, `reports/member2/flag_validation.csv`, `reports/member2/validation_summary.md` | Commit confirmed; validation details need inspection |
+| Meghana | `analysis` | `c1abc4a` | `scripts/validate_flags.py`, `reports/member2/flag_validation.csv`, `reports/member2/validation_summary.md` | Commit confirmed; validation details need inspection |
 | Jaykishan | `jaykishan` | `60a1478` | Monthly trend chart, Week 3 notebook, chart notes | Commit and filenames confirmed; content review pending |
 | Madhupriya | `madhupriya/validation` | `f0648f0` | Dashboard visuals, PBIX file, dashboard guide, metric definitions | Commit and filenames confirmed; content review pending |
 | Lav Kumar | `LavKumar` | Documentation update being prepared | Progress, decision, limitation, and tracking records | In progress |
