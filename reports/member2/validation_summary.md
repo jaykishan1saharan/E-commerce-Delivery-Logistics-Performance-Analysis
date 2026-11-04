@@ -1,6 +1,6 @@
 ## Independent Python Flag Validation
 
-- Validation script: `validate_flags.py`
+- Validation script: `scripts/validate_flags.py`
 - Report: `reports/member2/flag_validation.csv`
 - Rows checked: 99,441
 - `on_time_eligible`: PASS; 96,470 expected and stored; 0 mismatches.
