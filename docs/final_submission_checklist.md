@@ -122,3 +122,30 @@ The following entries record deliverables identified in Git history. A committed
 **Week 4 status:** Deliverables have been added and multiple pull requests have been merged. Final technical verification, dashboard integration confirmation, KPI reconciliation, reproducibility checks, and team-lead approval remain outstanding.
 
 **Documentation owner:** Lav Kumar — Member 5, Documentation and Coordination.
+
+## Week 4 Integration Verification — 4 November 2026
+
+Verified against `origin/main` after `git fetch --all --prune`.
+
+### Files confirmed on origin/main
+
+- [x] KPI definitions: `docs/KPI_definitions.md`.
+- [x] Dashboard validation SQL: `sql/08_week4_dashboard_validation.sql`.
+- [x] Cancellation and rating SQL: `sql/10_cancellation_rating_analysis.sql`.
+- [x] Cancellation and rating CSV exports are present.
+- [x] Delivery-stage, regional-delay, and state-delay CSV exports are present.
+- [x] Carrier/regional analysis notebook is present.
+- [x] Power BI dashboard: `powerbi/Olist_Logistics_Dashboard.pbix`.
+- [x] Integration verified against `origin/main` at commit `f83dd5f`.
+
+### Technical checks — not yet verified
+
+- [ ] Execute the Week 4 SQL scripts against the documented MySQL database.
+- [ ] Inspect complete SQL files and confirm they are not truncated.
+- [ ] Reconcile CSV exports against fresh SQL query results.
+- [ ] Execute the carrier/regional notebook from a clean kernel.
+- [ ] Open the PBIX file and test dashboard pages, filters, and measures.
+- [ ] Reconcile dashboard KPIs against approved SQL outputs.
+- [ ] Complete end-to-end reproducibility and final team-lead approval.
+
+**Evidence limitation:** Git confirms that the listed files exist on `origin/main`. File presence and successful Git retrieval do not establish successful execution, analytical correctness, or dashboard functionality.
