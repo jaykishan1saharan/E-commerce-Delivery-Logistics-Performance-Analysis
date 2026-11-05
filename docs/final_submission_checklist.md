@@ -149,3 +149,43 @@ Verified against `origin/main` after `git fetch --all --prune`.
 - [ ] Complete end-to-end reproducibility and final team-lead approval.
 
 **Evidence limitation:** Git confirms that the listed files exist on `origin/main`. File presence and successful Git retrieval do not establish successful execution, analytical correctness, or dashboard functionality.
+
+## Week 4 Final Submission — 5 November 2026
+
+### Member 5 documentation and presentation
+- [x] Final documentation pack copied into the repository.
+- [x] KPI reconciliation document added.
+- [x] Dashboard user guide added.
+- [x] Data refresh limitations documented.
+- [x] Final presentation copied into `presentation/`.
+- [ ] Review all new documentation for accuracy.
+- [ ] Verify root README against the actual repository.
+- [ ] Add final dashboard screenshots after dashboard testing.
+
+### KPI and analysis sign-off
+- [x] Independently validate the raw-source delivery-date calculation: 6,534 late deliveries (6.77%) among 96,470 eligible delivered orders.
+- [x] Identify eight delivered-status orders with missing actual delivery dates.
+- [ ] Regenerate `kpi_orders.csv` using the validated calendar-date rule.
+- [ ] Reconcile review summaries and review population.
+- [ ] Compare approved SQL results with Power BI DAX measures.
+- [ ] Confirm all reported figures use consistent populations and definitions.
+
+### Dashboard sign-off
+- [ ] Open the PBIX in Power BI Desktop.
+- [ ] Confirm all dashboard pages render.
+- [ ] Refresh the data and record the outcome.
+- [ ] Test slicers, filters, and KPI cards.
+- [ ] Compare dashboard values with approved SQL outputs.
+- [ ] Capture screenshots for the final report and presentation.
+
+### Presentation and GitHub delivery
+- [ ] Review all presentation slides against validated findings.
+- [ ] Confirm the final slide count and presentation file.
+- [ ] Stage and review all documentation and presentation changes.
+- [ ] Commit and push changes to `LavKumar`.
+- [ ] Create and review PR from `LavKumar` into `main`.
+- [ ] Merge the PR after required approval.
+- [ ] Verify the merged files on `origin/main`.
+- [ ] Record the final merge commit SHA.
+
+**Final completion rule:** The project must not be marked 100% complete until outstanding KPI, dashboard, reproducibility, review, and GitHub merge checks have been verified with evidence.
