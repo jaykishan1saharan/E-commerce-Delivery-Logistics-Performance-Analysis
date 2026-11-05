@@ -1,38 +1,18 @@
 # E-commerce Delivery & Logistics Performance Analysis
 
-## Project overview
-This project analyzes the Olist e-commerce dataset to understand order status, delivery performance, data quality, cancellations, and customer review patterns. The repository contains source data, SQL cleaning/audit scripts, saved analysis outputs, and Python-generated charts and summaries.
-
-## Project status
-The repository contains initial data-quality reports and exploratory analysis outputs. Treat the project as **in progress** until the team has rerun the current SQL/Python workflows, reconciled differing counts, verified dashboard outputs, and approved the final report.
-
-## Repository structure
-- `data/raw/` — source CSV files; preserve these files unchanged.
-- `data/interim/` — saved query outputs and intermediate analysis files.
-- `SQL/` — SQL cleaning, audit, and export scripts.
-- `reports/` — data dictionary, cleaning log, quality summaries, and analysis outputs.
-- `reports/member4/` — charts and CSV outputs for order status, delivery duration, cancellations, and review scores.
-- `docs/` — project daily log, decision log, meeting notes, and submission checklist.
-- `load_data.py`, `run_analysis.py`, `export_member4_results.py` — Python scripts for loading/analysis/export; check their current requirements and paths before running.
-
-## Data and analysis notes
-The source data represents Olist e-commerce orders. Existing reports include order status, review-score distribution, delivery duration, cancellation analysis, and data-quality checks.
-
-**Important reconciliation note:** Existing artifacts report different row counts and late-delivery totals. For example, `reports/cleaning_summary.md` describes saved cleaning outputs, `reports/data_quality_summary.md` describes staging-table audit results, and `member4_findings.md` reports 7,826 late deliveries while a separate KPI validation result reported 6,534. These may use different snapshots, filters, or definitions. Do not treat them as directly comparable or publish one as the final KPI until the team reruns the current workflows and agrees on the denominator and eligibility rules.
-
-## Setup
-Use a Python virtual environment where possible:
-**Project status:** Data ingestion, MySQL data-quality auditing, clean views, KPI validation, and initial exploratory analysis are available. Further reconciliation, end-to-end testing, analysis, and final reporting remain in progress.
-
 ## 1. Project Overview
 
-This team project analyzes the Brazilian E-Commerce Public Dataset by Olist to understand order fulfilment, delivery duration, late deliveries, cancellations, customer reviews, and data-quality limitations.
+This team project analyzes the Brazilian E-Commerce Public Dataset by Olist to understand order fulfilment, delivery performance, late deliveries, cancellations, customer reviews, and data-quality limitations.
 
-The repository contains raw CSV datasets, Python analysis scripts, MySQL staging and validation scripts, saved SQL query outputs, data-quality documentation, and preliminary exploratory visualizations.
+The analysis uses Python, SQL, MySQL, SQLite, and exploratory visualizations. The project is descriptive: observed relationships should not be interpreted as proof of causation, and missing operational data must not be invented.
 
-The analysis is descriptive. Observed relationships should not be interpreted as proof of causation, and missing operational data must not be invented.
+## 2. Project Status
 
-## 2. Dataset
+The repository contains source datasets, data-ingestion scripts, MySQL staging and clean-view workflows, SQLite analysis scripts, KPI validation outputs, exploratory reports, and project documentation.
+
+Week 4 documentation and the final presentation have been added to the Member 5 working branch. Dashboard verification, final KPI export reconciliation, team review, and pull-request approval must be confirmed before the project is declared fully complete.
+
+## 3. Dataset
 
 **Source:** [Brazilian E-Commerce Public Dataset by Olist (Kaggle)](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
 
@@ -45,69 +25,25 @@ The `data/raw/` directory contains six source files:
 - `olist_products_dataset.csv`
 - `product_category_name_translation.csv`
 
-Keep the original CSV files unchanged. The complete Olist dataset includes other tables that may not be present in this repository.
-
-## 3. Project Status
-
-### Available and completed components
-
-- Raw CSV files organized under `data/raw/`.
-- Python scripts for loading selected data into SQLite and running summary analysis.
-- MySQL staging import script for the six source datasets.
-- SQL data-quality audit queries and clean views.
-- KPI queries and KPI validation scripts.
-- Saved SQL query results under `data/interim/`.
-- Data-quality summaries, cleaning logs, a data dictionary, and validation reports.
-- Initial EDA summary tables and visualizations.
-
-### Remaining work
-
-- Run and verify all workflows from a clean environment.
-- Reconcile saved outputs generated by different runs or stages.
-- Review cleaning rules and unresolved data-quality anomalies.
-- Complete additional analysis and any planned dashboard.
-- Regenerate and review final reports from a consistent data snapshot.
-- Document final conclusions and recommendations after validation.
-
-**Important:** Some existing reports contain preliminary results from earlier runs. Do not treat every saved output as a final, mutually reconciled result.
+Preserve the original CSV files unchanged. The complete Olist dataset includes other tables that may not be present in this repository.
 
 ## 4. Repository Structure
 
-```text
-E-commerce-Delivery-Logistics-Performance-Analysis/
-├── data/
-│   ├── raw/                       # Original Olist CSV files
-│   └── interim/                   # Saved SQL query outputs
-├── reports/
-│   ├── data_quality/
-│   │   ├── day1_validation_summary.md
-│   │   ├── mysql_audit_output.txt
-│   │   ├── data_quality_summary.md
-│   │   ├── cleaning_summary.md
-│   │   ├── data_dictionary.csv
-│   │   ├── data_quality_report.csv
-│   │   └── cleaning_log.csv
-│   ├── figures/                   # Exploratory visualizations
-│   ├── tables/                    # Summary tables
-│   └── interim_findings.md        # Preliminary findings
-├── sql/
-│   ├── 02_data_quality_audit.sql
-│   ├── 03_create_clean_views.sql
-│   ├── 04_kpi_queries.sql
-│   ├── 05_export_cleaning_log.sql
-│   ├── 06_kpi_validation_clean.sql
-│   └── 07_kpi_validation_optimized.sql
-├── src/
-│   └── scripts/
-│       ├── import_mysql_staging.py
-│       ├── build_kpi_sqlite.py
-│       ├── load_data.py
-│       ├── run_analysis.py
-│       └── export_analysis_results.py
-├── requirements.txt
-├── .gitignore
-└── README.md
-```
+- `data/raw/` — original source CSV files.
+- `data/interim/` — saved SQL query outputs.
+- `sql/` — MySQL audit, cleaning, KPI, and validation scripts.
+- `src/scripts/` — Python ingestion, analysis, and export scripts.
+- `notebooks/` — analysis notebooks.
+- `reports/` — data-quality reports, findings, tables, and figures.
+- `docs/` — KPI definitions, decision log, meeting notes, daily logs, reconciliation notes, dashboard guide, refresh limitations, and submission checklist.
+- `presentation/` — final project presentation.
+- `exports/` — generated project exports.
+
+## Data and KPI Reconciliation
+
+Existing saved artifacts contain different row counts and late-delivery totals. In particular, earlier findings report 7,826 late deliveries, while an independent raw-source calendar-date validation reports 6,534 late deliveries among 96,470 eligible delivered orders (6.77%).
+
+These figures must not be mixed without checking their source, snapshot, eligibility rules, and calculation method. The saved KPI export flags require regeneration and review before dashboard use. See `docs/kpi_reconciliation.md` and `docs/data_refresh_limitations.md` for the current reconciliation notes.
 
 ## 5. Environment Setup
 
@@ -134,11 +70,20 @@ The analysis also depends on the SQL database/workflow used by the team. Review 
 7. Update final findings only after the team lead and analysis owners confirm the results.
 
 ## Documentation
-- `docs/week3_daily_log.md` — day-by-day work and verification status.
-- `docs/decision_log.md` — confirmed assumptions, definitions, and unresolved decisions.
-- `docs/meeting_notes.md` — review outcomes and handoffs.
+
+- `docs/KPI_definitions.md` — KPI definitions and calculation rules.
+- `docs/week3_daily_log.md` — Week 3 daily progress and verification status.
+- `docs/week4_daily_log.md` — Week 4 daily progress and handover status.
+- `docs/decision_log.md` — confirmed assumptions and unresolved decisions.
+- `docs/meeting_notes.md` — review outcomes and team handoffs.
+- `docs/kpi_reconciliation.md` — late-delivery KPI reconciliation.
+- `docs/dashboard_user_guide.md` — dashboard usage and verification guidance.
+- `docs/data_refresh_limitations.md` — refresh procedures and known limitations.
+- `docs/final_presentation_outline.md` — final presentation structure.
+- `docs/pull_request_merge_steps.md` — GitHub pull-request and merge procedure.
 - `docs/final_submission_checklist.md` — final quality and submission checks.
-- `reports/project_summary.md` — project overview, verified findings, limitations, and pending reconciliation.
+- `presentation/QVETO_Technologies_Olist_Ecommerce_Logistics_Final_Presentation.pptx` — final project presentation.
+- `reports/project_summary.md` — project overview, findings, limitations, and pending reconciliation.
 
 ## Limitations
 - Saved CSV/report outputs are snapshots and may not reflect the current database.
@@ -323,14 +268,22 @@ Saved files may represent different runs. Check their source and timestamp befor
 
 The project team comprises Yashashvi Yash (Lead), Jaykishan Saharan, Madhupriya Naga, Katta Meghana, and Lav Kumar.
 
-The planned project phases are:
+The project phases are:
 
-1. **Week 1 — Data ingestion, validation, and initial EDA:** foundational artifacts are available.
-2. **Week 2 — Time-series analysis and additional KPI development:** continue validation and analysis.
-3. **Week 3 — Delivery-delay analysis or modeling:** proceed where supported by the data and project scope.
-4. **Week 4 — Final reporting, dashboard, and recommendations:** complete after analysis review.
+1. **Week 1 — Data ingestion, validation, and initial EDA:** foundational data and analysis artifacts are available.
+2. **Week 2 — KPI development and analysis:** SQL and KPI analysis artifacts are available; final consistency checks remain important.
+3. **Week 3 — Delivery-delay analysis:** preliminary findings and validation outputs are documented.
+4. **Week 4 — Final reporting, dashboard, and recommendations:** Member 5 documentation and presentation artifacts have been prepared on the `LavKumar` branch. Final dashboard testing, KPI export regeneration, team approval, and pull-request merge still require confirmation.
 
-Update the project status as work is completed and reviewed. Do not mark planned activities as complete until their outputs have been verified.
+### Team responsibilities
+
+- **Yashashvi Yash (Lead):** SQL validation, KPI definitions, and dashboard data preparation.
+- **Katta Meghana:** Power BI dashboard and DAX measures.
+- **Jaykishan Saharan:** carrier, regional, and delivery-stage analysis.
+- **Madhupriya Naga:** cancellation analysis, customer ratings, and operational recommendations.
+- **Lav Kumar:** documentation, repository integration, and final presentation.
+
+Project completion should be confirmed only after the responsible team members verify their deliverables, reconcile the final KPI outputs, test the dashboard, and approve the final submission.
 
 ## 12. License and Attribution
 
