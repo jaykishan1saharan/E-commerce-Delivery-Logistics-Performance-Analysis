@@ -161,3 +161,87 @@ FROM vw_order_level_analytics;
 -- =====================================================
 -- END OF WEEK 4 DASHBOARD VALIDATION
 -- =====================================================
+
+-- =========================================================
+-- 7. CLEAN ORDER-LEVEL ANALYTICAL DATASET
+-- One row per order
+-- =========================================================
+
+WITH review_summary AS (
+    SELECT
+        order_id,
+        ROUND(AVG(review_score), 2) AS review_score
+    FROM reviews
+    GROUP BY order_id
+),
+
+order_data AS (
+    SELECT
+        o.order_id,
+        o.customer_id,
+        c.customer_state,
+
+        LOWER(TRIM(o.order_status)) AS order_status,
+
+        STR_TO_DATE(
+            o.order_purchase_timestamp,
+            '%Y-%m-%d %H:%i:%s'
+        ) AS purchase_timestamp,
+
+        STR_TO_DATE(
+            o.order_estimated_delivery_date,
+            '%Y-%m-%d %H:%i:%s'
+        ) AS estimated_delivery_timestamp,
+
+        STR_TO_DATE(
+            o.order_delivered_customer_date,
+            '%Y-%m-%d %H:%i:%s'
+        ) AS actual_delivery_timestamp
+
+    FROM orders o
+    LEFT JOIN customers c
+        ON o.customer_id = c.customer_id
+)
+
+SELECT
+    od.order_id,
+    od.order_status,
+    od.purchase_timestamp,
+    od.estimated_delivery_timestamp,
+    od.actual_delivery_timestamp,
+    od.customer_id,
+    od.customer_state,
+    rs.review_score,
+
+    CASE
+        WHEN od.purchase_timestamp IS NOT NULL
+         AND od.actual_delivery_timestamp IS NOT NULL
+         AND od.actual_delivery_timestamp >= od.purchase_timestamp
+        THEN ROUND(
+            TIMESTAMPDIFF(
+                SECOND,
+                od.purchase_timestamp,
+                od.actual_delivery_timestamp
+            ) / 86400.0,
+            2
+        )
+        ELSE NULL
+    END AS delivery_duration_days,
+
+    CASE
+        WHEN od.order_status = 'delivered'
+         AND od.actual_delivery_timestamp IS NOT NULL
+         AND od.estimated_delivery_timestamp IS NOT NULL
+         AND od.actual_delivery_timestamp > od.estimated_delivery_timestamp
+        THEN 1
+        WHEN od.order_status = 'delivered'
+         AND od.actual_delivery_timestamp IS NOT NULL
+         AND od.estimated_delivery_timestamp IS NOT NULL
+        THEN 0
+        ELSE NULL
+    END AS is_late_delivery
+
+FROM order_data od
+LEFT JOIN review_summary rs
+    ON od.order_id = rs.order_id
+ORDER BY od.purchase_timestamp, od.order_id;
