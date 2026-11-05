@@ -1,0 +1,2 @@
+total_orders,delivered_orders,cancelled_orders,eligible_delivered_orders,late_orders,delivered_order_percentage,late_delivery_rate_pct,avg_delivery_days
+75840,73587,480,73584,5940,97.03,8.07,12.56

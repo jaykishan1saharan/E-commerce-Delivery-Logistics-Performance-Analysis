@@ -245,3 +245,263 @@ FROM order_data od
 LEFT JOIN review_summary rs
     ON od.order_id = rs.order_id
 ORDER BY od.purchase_timestamp, od.order_id;
+
+
+
+-- =====================================================
+-- FILE: sql/08_week4_dashboard_validation.sql
+-- PROJECT: Olist E-commerce Delivery Analysis
+-- MEMBER: Yashashvi Yash
+-- WEEK 4 - WEDNESDAY
+-- =====================================================
+
+USE ecommerce_delivery;
+
+
+-- =====================================================
+-- 1. TOTAL AND UNIQUE ORDER VALIDATION
+-- =====================================================
+
+SELECT
+    COUNT(*) AS total_rows,
+    COUNT(DISTINCT order_id) AS unique_orders,
+    COUNT(*) - COUNT(DISTINCT order_id) AS duplicate_rows
+FROM orders;
+
+
+-- =====================================================
+-- 2. DUPLICATE ORDER ID CHECK
+-- =====================================================
+
+SELECT
+    order_id,
+    COUNT(*) AS duplicate_count
+FROM orders
+GROUP BY order_id
+HAVING COUNT(*) > 1;
+
+
+-- =====================================================
+-- 3. NULL AND BLANK VALUE CHECK
+-- =====================================================
+
+SELECT
+    SUM(order_id IS NULL OR TRIM(order_id) = '')
+        AS missing_order_id,
+
+    SUM(customer_id IS NULL OR TRIM(customer_id) = '')
+        AS missing_customer_id,
+
+    SUM(order_status IS NULL OR TRIM(order_status) = '')
+        AS missing_order_status,
+
+    SUM(
+        order_purchase_timestamp IS NULL
+        OR TRIM(order_purchase_timestamp) = ''
+    ) AS missing_purchase_timestamp,
+
+    SUM(
+        order_estimated_delivery_date IS NULL
+        OR TRIM(order_estimated_delivery_date) = ''
+    ) AS missing_estimated_date,
+
+    SUM(
+        order_delivered_customer_date IS NULL
+        OR TRIM(order_delivered_customer_date) = ''
+    ) AS missing_actual_delivery_date
+
+FROM orders;
+
+
+-- =====================================================
+-- 4. ORDER STATUS DISTRIBUTION
+-- =====================================================
+
+SELECT
+    LOWER(TRIM(order_status)) AS order_status,
+    COUNT(*) AS total_orders,
+    ROUND(
+        COUNT(*) * 100.0 /
+        NULLIF((SELECT COUNT(*) FROM orders), 0),
+        2
+    ) AS percentage
+FROM orders
+GROUP BY LOWER(TRIM(order_status))
+ORDER BY total_orders DESC;
+
+
+-- =====================================================
+-- 5. INVALID TIMESTAMP CHECK
+-- =====================================================
+
+WITH parsed AS (
+    SELECT
+        order_id,
+
+        STR_TO_DATE(
+            order_purchase_timestamp,
+            '%Y-%m-%d %H:%i:%s'
+        ) AS purchase_date,
+
+        STR_TO_DATE(
+            order_delivered_carrier_date,
+            '%Y-%m-%d %H:%i:%s'
+        ) AS carrier_date,
+
+        STR_TO_DATE(
+            order_delivered_customer_date,
+            '%Y-%m-%d %H:%i:%s'
+        ) AS actual_delivery,
+
+        STR_TO_DATE(
+            order_estimated_delivery_date,
+            '%Y-%m-%d %H:%i:%s'
+        ) AS estimated_delivery
+
+    FROM orders
+)
+
+SELECT
+    SUM(
+        purchase_date IS NULL
+        AND order_id IS NOT NULL
+    ) AS invalid_or_missing_purchase_date,
+
+    SUM(
+        actual_delivery IS NOT NULL
+        AND purchase_date IS NOT NULL
+        AND actual_delivery < purchase_date
+    ) AS delivery_before_purchase,
+
+    SUM(
+        carrier_date IS NOT NULL
+        AND purchase_date IS NOT NULL
+        AND carrier_date < purchase_date
+    ) AS carrier_before_purchase,
+
+    SUM(
+        actual_delivery IS NOT NULL
+        AND estimated_delivery IS NOT NULL
+        AND actual_delivery < estimated_delivery
+    ) AS delivered_early
+
+FROM parsed;
+
+
+-- =====================================================
+-- 6. DELIVERY KPI VALIDATION
+-- =====================================================
+
+WITH parsed AS (
+    SELECT
+        order_id,
+        LOWER(TRIM(order_status)) AS order_status,
+
+        STR_TO_DATE(
+            order_purchase_timestamp,
+            '%Y-%m-%d %H:%i:%s'
+        ) AS purchase_date,
+
+        STR_TO_DATE(
+            order_delivered_customer_date,
+            '%Y-%m-%d %H:%i:%s'
+        ) AS actual_delivery,
+
+        STR_TO_DATE(
+            order_estimated_delivery_date,
+            '%Y-%m-%d %H:%i:%s'
+        ) AS estimated_delivery
+
+    FROM orders
+),
+
+eligible AS (
+    SELECT *
+    FROM parsed
+    WHERE order_status = 'delivered'
+      AND actual_delivery IS NOT NULL
+      AND estimated_delivery IS NOT NULL
+)
+
+SELECT
+    (SELECT COUNT(DISTINCT order_id) FROM parsed)
+        AS total_orders,
+
+    COUNT(DISTINCT CASE
+        WHEN order_status = 'delivered' THEN order_id
+    END) AS delivered_orders,
+
+    COUNT(DISTINCT CASE
+        WHEN order_status = 'canceled' THEN order_id
+    END) AS cancelled_orders,
+
+    COUNT(DISTINCT order_id)
+        AS eligible_delivered_orders,
+
+    COUNT(DISTINCT CASE
+        WHEN actual_delivery > estimated_delivery
+        THEN order_id
+    END) AS late_orders,
+
+    ROUND(
+        100.0 * COUNT(DISTINCT CASE
+            WHEN actual_delivery > estimated_delivery
+            THEN order_id
+        END) / NULLIF(COUNT(DISTINCT order_id), 0),
+        2
+    ) AS late_delivery_rate_pct,
+
+    ROUND(
+        AVG(
+            CASE
+                WHEN purchase_date IS NOT NULL
+                 AND actual_delivery >= purchase_date
+                THEN TIMESTAMPDIFF(
+                    SECOND,
+                    purchase_date,
+                    actual_delivery
+                ) / 86400.0
+            END
+        ),
+        2
+    ) AS avg_delivery_days
+
+FROM eligible;
+
+
+-- =====================================================
+-- 7. REVIEW SCORE VALIDATION
+-- =====================================================
+
+SELECT
+    COUNT(*) AS total_review_records,
+
+    SUM(review_score IS NULL)
+        AS missing_review_scores,
+
+    SUM(
+        review_score IS NOT NULL
+        AND review_score NOT BETWEEN 1 AND 5
+    ) AS invalid_review_scores
+
+FROM reviews;
+
+
+-- =====================================================
+-- 8. CUSTOMER STATE VALIDATION
+-- =====================================================
+
+SELECT
+    COUNT(*) AS total_customers,
+
+    SUM(
+        customer_state IS NULL
+        OR TRIM(customer_state) = ''
+    ) AS missing_customer_states
+
+FROM customers;
+
+
+-- =====================================================
+-- END OF VALIDATION QUERIES
+-- =====================================================
