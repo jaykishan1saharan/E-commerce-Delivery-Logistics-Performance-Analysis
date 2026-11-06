@@ -11,6 +11,19 @@
 
 USE ecommerce_delivery;
 
+-- 0. Confirm the cleaned order population used as the cancellation
+--    denominator: every usable order ID should be represented once.
+SELECT
+    COUNT(*) AS order_rows,
+    COUNT(DISTINCT order_id) AS distinct_orders,
+    SUM(order_id IS NULL OR TRIM(order_id) = '') AS missing_or_blank_order_ids,
+    SUM(order_status = 'canceled') AS canceled_orders,
+    ROUND(
+        100.0 * SUM(order_status = 'canceled') / NULLIF(COUNT(*), 0),
+        2
+    ) AS cancellation_rate_pct
+FROM orders_clean;
+
 -- 1. Order-status distribution. The cancellation denominator includes
 --    every order in orders_clean, regardless of its status.
 SELECT
@@ -319,11 +332,11 @@ group_sizes AS (
 valid_linked_reviews AS (
     SELECT
         d.delivery_group,
-        r.order_id,
+        NULLIF(TRIM(r.order_id), '') AS order_id,
         r.review_score
     FROM delivered_with_dates AS d
     INNER JOIN reviews_stage AS r
-        ON r.order_id = d.order_id
+        ON NULLIF(TRIM(r.order_id), '') = d.order_id
     WHERE r.review_score BETWEEN 1 AND 5
 ),
 score_counts AS (

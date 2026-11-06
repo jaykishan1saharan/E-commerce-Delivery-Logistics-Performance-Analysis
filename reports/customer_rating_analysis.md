@@ -1,7 +1,6 @@
 # Customer Rating Analysis: On-Time vs. Delayed Orders
 
 > **Status:** Candidate findings reproduced from the checked-in raw CSVs.
-> 
 ## 1. Objective and scope
 
 - Compare order-level customer review scores for delivered orders classified
@@ -42,9 +41,9 @@
 
 ## 4. Validated source-file findings
 
-- 99,224 review rows link to 98,673 distinct orders; 768 source orders have no
-  review row. All review rows have an order ID and score, and all scores are in
-  the 1–5 range.
+- 99,224 review rows link to 98,673 distinct orders; the remaining 768 of
+  99,441 source orders have no review row. The 99,224 linked review rows all
+  have nonblank IDs and valid scores from 1–5.
 - The raw file has no duplicate `(order_id, review_id)` pairs, but 789 review
   IDs are linked to multiple orders. This key behavior is material to the
   order-review join and must be retained.
@@ -66,6 +65,11 @@
   [`data/exports/week4_rating_analysis.csv`](../data/exports/week4_rating_analysis.csv).
   The linked delayed/on-time distribution and group sizes are in
   [`data/exports/week4_delay_rating_comparison.csv`](../data/exports/week4_delay_rating_comparison.csv).
+- In the valid linked delivery comparison, 6,409 review records cover 6,381
+  delayed rated orders; 89,944 records cover 89,443 on-time rated orders.
+  Record counts exceed rated-order counts because some orders have multiple
+  valid reviews. Keep both denominators visible; do not describe review-record
+  percentages as order percentages.
 
 ## 5. Reporting method and limitations
 
@@ -81,6 +85,10 @@
 - Raw-file checks found no duplicate `(order_id, review_id)` pairs and no
   orphan review order IDs. The 789 review IDs associated with multiple
   orders are retained as separate order links.
+- The clean-view definition partitions reviews by `review_id` alone. Because
+  that key is not unique across orders in this source, the SQL comparison
+  reads `reviews_stage` and joins on the trimmed `order_id`; do not substitute
+  `reviews_clean` unless its deduplication key is corrected and validated.
 - Confirm database import and cleaning reproduce raw-file coverage before
   treating these candidates as approved MySQL outputs. The group difference
   is descriptive and may reflect factors beyond delivery timeliness.

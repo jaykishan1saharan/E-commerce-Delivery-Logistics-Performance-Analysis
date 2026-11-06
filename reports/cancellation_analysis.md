@@ -1,7 +1,7 @@
 # Cancellation Analysis
 
 > **Status:** Candidate findings reproduced from the checked-in raw CSVs.
-> 
+>
 
 ## 1. Objective and scope
 
@@ -17,9 +17,9 @@
   recorded status, including `unavailable`, `shipped`, `processing`, and other
   non-final statuses.
 - **Cancellation rate:** `canceled orders / all unique orders * 100`.
-- The current source has a unique `order_id` on every order row, so the
-  denominator equals the order-row count. Recheck uniqueness and missing IDs
-  in the imported database before publication.
+- All 99,441 raw order rows have a nonblank unique `order_id`; thus the
+  denominator equals the source row count. The SQL includes a separate
+  population check for `orders_clean`.
 
 ## 3. Validated source-file findings
 
@@ -42,12 +42,15 @@
 ## 4. Reporting method and limitations
 
 - Raw-file checks found 99,441 rows, 99,441 distinct nonmissing order IDs,
-  and eight distinct source statuses. The SQL uses `orders_clean`; confirm it
-  matches the checked-in source snapshot before publishing a database result.
+  and eight distinct source statuses. The 625 canceled orders are divided by
+  all 99,441 unique orders (including the 609 `unavailable` and all
+  non-final statuses), not just delivered orders. Candidate export status and
+  state totals reconcile to 99,441.
 - State comparisons are descriptive and include denominator counts. Small
   state samples can produce volatile rates.
-- The data does not contain cancellation reasons in this analysis; status
-  counts cannot establish why orders were canceled.
+- The all-period cancellation rate is a descriptive baseline, not a
+  target-period estimate. Follow-up comparisons should use matching purchase
+  cohorts and the same all-status denominator rule.
 - Inspect the six canceled orders with delivery timestamps and the 609
   `unavailable` orders separately. Do not reclassify either group based on
   timestamp anomalies.
