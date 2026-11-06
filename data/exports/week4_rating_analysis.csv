@@ -16,5 +16,5 @@ review_coverage_by_status,,,,,invoiced,314,309,5,98.41,,,,,
 review_coverage_by_status,,,,,processing,301,295,6,98.01,,,,,
 review_coverage_by_status,,,,,shipped,1107,1032,75,93.22,,,,,
 review_coverage_by_status,,,,,unavailable,609,595,14,97.7,,,,,
-delivery_group_rating,,,,,,,,,,on_time,89936,89443,493,4.2906
 delivery_group_rating,,,,,,,,,,delayed,6534,6381,153,2.2718
+delivery_group_rating,,,,,,,,,,on_time,89936,89443,493,4.2906

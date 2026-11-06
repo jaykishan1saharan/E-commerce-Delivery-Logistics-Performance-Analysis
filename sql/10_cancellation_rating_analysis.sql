@@ -11,6 +11,19 @@
 
 USE ecommerce_delivery;
 
+-- 0. Confirm the cleaned order population used as the cancellation
+--    denominator: every usable order ID should be represented once.
+SELECT
+    COUNT(*) AS order_rows,
+    COUNT(DISTINCT order_id) AS distinct_orders,
+    SUM(order_id IS NULL OR TRIM(order_id) = '') AS missing_or_blank_order_ids,
+    SUM(order_status = 'canceled') AS canceled_orders,
+    ROUND(
+        100.0 * SUM(order_status = 'canceled') / NULLIF(COUNT(*), 0),
+        2
+    ) AS cancellation_rate_pct
+FROM orders_clean;
+
 -- 1. Order-status distribution. The cancellation denominator includes
 --    every order in orders_clean, regardless of its status.
 SELECT
@@ -278,4 +291,82 @@ FROM comparison_population
 GROUP BY delivery_group
 ORDER BY delivery_group;
 
--- End of analysis skeleton.
+-- 6. Rating-score distribution among valid review records linked to
+--    eligible delivered orders. The inner join and score predicate exclude
+--    orphaned links, non-delivered orders, missing-date orders, and invalid
+--    scores. Group sizes are included for context; review rows remain at
+--    review-record grain here and are not used to calculate group means.
+WITH delivered_with_dates AS (
+    SELECT
+        order_id,
+        CASE
+            WHEN DATE(order_delivered_customer_date)
+                 > DATE(order_estimated_delivery_date)
+                THEN 'delayed'
+            ELSE 'on_time'
+        END AS delivery_group
+    FROM orders_clean
+    WHERE order_status = 'delivered'
+      AND order_delivered_customer_date IS NOT NULL
+      AND order_estimated_delivery_date IS NOT NULL
+),
+review_by_order AS (
+    SELECT
+        NULLIF(TRIM(order_id), '') AS order_id,
+        AVG(review_score) AS avg_review_score
+    FROM reviews_stage
+    WHERE NULLIF(TRIM(order_id), '') IS NOT NULL
+      AND review_score BETWEEN 1 AND 5
+    GROUP BY NULLIF(TRIM(order_id), '')
+),
+group_sizes AS (
+    SELECT
+        d.delivery_group,
+        COUNT(*) AS eligible_delivered_orders,
+        SUM(r.order_id IS NOT NULL) AS rated_orders
+    FROM delivered_with_dates AS d
+    LEFT JOIN review_by_order AS r
+        ON r.order_id = d.order_id
+    GROUP BY d.delivery_group
+),
+valid_linked_reviews AS (
+    SELECT
+        d.delivery_group,
+        NULLIF(TRIM(r.order_id), '') AS order_id,
+        r.review_score
+    FROM delivered_with_dates AS d
+    INNER JOIN reviews_stage AS r
+        ON NULLIF(TRIM(r.order_id), '') = d.order_id
+    WHERE r.review_score BETWEEN 1 AND 5
+),
+score_counts AS (
+    SELECT
+        delivery_group,
+        review_score,
+        COUNT(*) AS valid_review_records,
+        COUNT(DISTINCT order_id) AS distinct_orders_with_score
+    FROM valid_linked_reviews
+    GROUP BY delivery_group, review_score
+)
+SELECT
+    s.delivery_group,
+    g.eligible_delivered_orders,
+    g.rated_orders,
+    g.eligible_delivered_orders - g.rated_orders
+        AS orders_without_valid_rating,
+    s.review_score,
+    s.valid_review_records,
+    s.distinct_orders_with_score,
+    ROUND(
+        100.0 * s.valid_review_records /
+            NULLIF(SUM(s.valid_review_records) OVER (
+                PARTITION BY s.delivery_group
+            ), 0),
+        2
+    ) AS pct_valid_review_records
+FROM score_counts AS s
+INNER JOIN group_sizes AS g
+    ON g.delivery_group = s.delivery_group
+ORDER BY s.delivery_group, s.review_score;
+
+-- End of analysis.

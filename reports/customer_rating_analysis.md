@@ -1,8 +1,6 @@
 # Customer Rating Analysis: On-Time vs. Delayed Orders
 
-> **Status:** Outline and source-data inspection. Preliminary results are
-> descriptive and require validation against the imported database.
-
+> **Status:** Candidate findings reproduced from the checked-in raw CSVs.
 ## 1. Objective and scope
 
 - Compare order-level customer review scores for delivered orders classified
@@ -29,23 +27,28 @@
 
 ## 3. Comparison population and classification
 
-- Include only orders with `order_status = 'delivered'`, both actual and
-  estimated delivery dates present, and at least one linked valid review
-  score.
+- The **eligible delivery population** includes every order with
+  `order_status = 'delivered'` and both actual and estimated delivery dates
+  present. Keep orders without a valid rating in this population and report
+  them as unrated.
+- The **rated subset** includes eligible deliveries with at least one linked
+  valid review score (1–5). Calculate the order-level rating mean only from
+  this subset, averaging multiple valid reviews per order first.
 - Classify using **calendar dates**: delayed when
   `DATE(order_delivered_customer_date) > DATE(order_estimated_delivery_date)`;
   otherwise on time. Same-day delivery is on time regardless of timestamp
   time-of-day.
 - Exclude canceled, unavailable, and other non-delivered statuses; exclude
-  delivered orders with either date missing from the timeliness comparison.
+  delivered orders with either date missing from both the timeliness and
+  rating comparison.
 - Report eligible delivered orders, rated orders, and missing-rating orders
   for each group so the rating denominator and coverage are explicit.
 
-## 4. Source inspection and preliminary results
+## 4. Validated source-file findings
 
-- 99,224 review rows link to 98,673 distinct orders; 768 source orders have no
-  review row. All review rows have an order ID and score, and all scores are in
-  the 1–5 range.
+- 99,224 review rows link to 98,673 distinct orders; the remaining 768 of
+  99,441 source orders have no review row. The 99,224 linked review rows all
+  have nonblank IDs and valid scores from 1–5.
 - The raw file has no duplicate `(order_id, review_id)` pairs, but 789 review
   IDs are linked to multiple orders. This key behavior is material to the
   order-review join and must be retained.
@@ -53,32 +56,45 @@
   actual delivery date. There are no missing estimated dates in the source.
 - Calendar-date groups among delivered orders with both dates: **89,936 on
   time** and **6,534 delayed**.
-- Preliminary rated-order population and mean of per-order average scores:
+- Eligible rated-order population and mean of per-order average scores:
   - On time: 89,443 rated orders; **4.29 / 5**.
   - Delayed: 6,381 rated orders; **2.27 / 5**.
 - Missing valid rating within the date-eligible groups: 493 on-time orders and
   153 delayed orders. The group mean excludes these unrated orders; report
   their counts and coverage.
+- Rating coverage is 99.45% on time (89,443 / 89,936) and 97.66% delayed
+  (6,381 / 6,534). The mean order-level score is 2.02 points lower among
+  delayed orders; this is an association, not evidence that delay caused the
+  difference.
+- The candidate source-review distribution is in
+  [`data/exports/week4_rating_analysis.csv`](../data/exports/week4_rating_analysis.csv).
+  The linked delayed/on-time distribution and group sizes are in
+  [`data/exports/week4_delay_rating_comparison.csv`](../data/exports/week4_delay_rating_comparison.csv).
+- In the valid linked delivery comparison, 6,409 review records cover 6,381
+  delayed rated orders; 89,944 records cover 89,443 on-time rated orders.
+  Record counts exceed rated-order counts because some orders have multiple
+  valid reviews. Keep both denominators visible; do not describe review-record
+  percentages as order percentages.
 
-## 5. Analysis and reporting outline
+## 5. Reporting method and limitations
 
-1. Validate status/date coverage, score validity, order-review orphan links,
-   duplicate composite keys, and review IDs associated with multiple orders.
-2. Confirm one row per order in the comparison population.
-3. Present eligible and rated order counts, rating coverage, mean per-order
-   score, and score distribution by delivery group.
-4. Include a clear note on date-level classification, multi-review
-   aggregation, missing ratings, and non-causal interpretation.
-5. Replace preliminary source-file figures with validated SQL outputs and
-   record the extraction date before final publication.
-
-## 6. Limitations and open checks
-
-- Confirm database import and cleaning reproduce source-file coverage.
-- Investigate whether repeated `review_id` values across orders represent
-  intentional source linkage or a source-system artifact; preserve order
-  links unless the source owner specifies otherwise.
-- Review score coverage may differ by delivery group; do not interpret group
-  means without counts and coverage.
-- Validate the date-level late rule against the project KPI definition and
-  use it consistently in SQL and reporting.
+- Delivery-group eligibility includes all delivered orders with both dates.
+  Rating means use only the subset with linked valid scores (1–5); eligible
+  orders without a valid score remain in the group-size denominator and are
+  counted as unrated.
+- Calendar-day classification is intentional and matches the project KPI
+  definition. A delivery later in the day than an estimate on the same
+  calendar date is classified as on time.
+- Score distributions count valid linked review records. Group means first
+  average valid review scores within each order, so every rated order has
+  equal weight. The 547 multiple-review orders make these two grains distinct.
+- Raw-file checks found no duplicate `(order_id, review_id)` pairs and no
+  orphan review order IDs. The 789 review IDs associated with multiple
+  orders are retained as separate order links.
+- The clean-view definition partitions reviews by `review_id` alone. Because
+  that key is not unique across orders in this source, the SQL comparison
+  reads `reviews_stage` and joins on the trimmed `order_id`; do not substitute
+  `reviews_clean` unless its deduplication key is corrected and validated.
+- Confirm database import and cleaning reproduce raw-file coverage before
+  treating these candidates as approved MySQL outputs. The group difference
+  is descriptive and may reflect factors beyond delivery timeliness.
