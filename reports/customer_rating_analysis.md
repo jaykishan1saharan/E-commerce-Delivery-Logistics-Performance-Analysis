@@ -1,8 +1,7 @@
 # Customer Rating Analysis: On-Time vs. Delayed Orders
 
-> **Status:** Outline and source-data inspection. Preliminary results are
-> descriptive and require validation against the imported database.
-
+> **Status:** Candidate findings reproduced from the checked-in raw CSVs.
+> 
 ## 1. Objective and scope
 
 - Compare order-level customer review scores for delivered orders classified
@@ -41,7 +40,7 @@
 - Report eligible delivered orders, rated orders, and missing-rating orders
   for each group so the rating denominator and coverage are explicit.
 
-## 4. Source inspection and preliminary results
+## 4. Validated source-file findings
 
 - 99,224 review rows link to 98,673 distinct orders; 768 source orders have no
   review row. All review rows have an order ID and score, and all scores are in
@@ -53,32 +52,35 @@
   actual delivery date. There are no missing estimated dates in the source.
 - Calendar-date groups among delivered orders with both dates: **89,936 on
   time** and **6,534 delayed**.
-- Preliminary rated-order population and mean of per-order average scores:
+- Eligible rated-order population and mean of per-order average scores:
   - On time: 89,443 rated orders; **4.29 / 5**.
   - Delayed: 6,381 rated orders; **2.27 / 5**.
 - Missing valid rating within the date-eligible groups: 493 on-time orders and
   153 delayed orders. The group mean excludes these unrated orders; report
   their counts and coverage.
+- Rating coverage is 99.45% on time (89,443 / 89,936) and 97.66% delayed
+  (6,381 / 6,534). The mean order-level score is 2.02 points lower among
+  delayed orders; this is an association, not evidence that delay caused the
+  difference.
+- The candidate source-review distribution is in
+  [`data/exports/week4_rating_analysis.csv`](../data/exports/week4_rating_analysis.csv).
+  The linked delayed/on-time distribution and group sizes are in
+  [`data/exports/week4_delay_rating_comparison.csv`](../data/exports/week4_delay_rating_comparison.csv).
 
-## 5. Analysis and reporting outline
+## 5. Reporting method and limitations
 
-1. Validate status/date coverage, score validity, order-review orphan links,
-   duplicate composite keys, and review IDs associated with multiple orders.
-2. Confirm one row per order in the comparison population.
-3. Present eligible and rated order counts, rating coverage, mean per-order
-   score, and score distribution by delivery group.
-4. Include a clear note on date-level classification, multi-review
-   aggregation, missing ratings, and non-causal interpretation.
-5. Replace preliminary source-file figures with validated SQL outputs and
-   record the extraction date before final publication.
-
-## 6. Limitations and open checks
-
-- Confirm database import and cleaning reproduce source-file coverage.
-- Investigate whether repeated `review_id` values across orders represent
-  intentional source linkage or a source-system artifact; preserve order
-  links unless the source owner specifies otherwise.
-- Review score coverage may differ by delivery group; do not interpret group
-  means without counts and coverage.
-- Validate the date-level late rule against the project KPI definition and
-  use it consistently in SQL and reporting.
+- The comparison includes only delivered orders with both dates and a linked
+  valid score (1–5); all eligible deliveries are retained in group-size
+  counts, including those without a valid score.
+- Calendar-day classification is intentional and matches the project KPI
+  definition. A delivery later in the day than an estimate on the same
+  calendar date is classified as on time.
+- Score distributions count valid linked review records. Group means first
+  average valid review scores within each order, so every rated order has
+  equal weight. The 547 multiple-review orders make these two grains distinct.
+- Raw-file checks found no duplicate `(order_id, review_id)` pairs and no
+  orphan review order IDs. The 789 review IDs associated with multiple
+  orders are retained as separate order links.
+- Confirm database import and cleaning reproduce raw-file coverage before
+  treating these candidates as approved MySQL outputs. The group difference
+  is descriptive and may reflect factors beyond delivery timeliness.

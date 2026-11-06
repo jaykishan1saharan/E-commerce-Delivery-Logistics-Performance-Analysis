@@ -1,7 +1,7 @@
 # Cancellation Analysis
 
-> **Status:** Outline and source-data inspection. Validate SQL outputs against
-> the imported database before treating the findings as final.
+> **Status:** Candidate findings reproduced from the checked-in raw CSVs.
+> 
 
 ## 1. Objective and scope
 
@@ -21,37 +21,33 @@
   denominator equals the order-row count. Recheck uniqueness and missing IDs
   in the imported database before publication.
 
-## 3. Source inspection — preliminary
+## 3. Validated source-file findings
 
 - 99,441 order rows and 99,441 distinct order IDs.
 - Status counts: delivered 96,478; shipped 1,107; canceled 625; unavailable
   609; invoiced 314; processing 301; created 5; approved 2.
-- Preliminary cancellation rate: **0.63%** (625 / 99,441).
+- Cancellation rate: **0.63%** (625 / 99,441 unique orders).
 - `unavailable` is not counted as canceled; do not combine the two statuses.
 - 2,957 non-delivered orders have no customer-delivery timestamp, which is
   expected for undelivered statuses. Eight delivered orders lack that date.
   Six canceled orders do have a delivery timestamp; investigate these
   status/date exceptions rather than reclassifying them.
+- Customer-state summaries retain the all-order denominator within each
+  state. São Paulo has the largest cancellation count (327 / 41,746; 0.78%).
+  Roraima has the highest observed state rate (1 / 46; 2.17%), which is a
+  small denominator and should not be treated as a stable ranking.
+- The candidate export is
+  [`data/exports/week4_cancellation_analysis.csv`](../data/exports/week4_cancellation_analysis.csv).
 
-## 4. Analysis and reporting outline
+## 4. Reporting method and limitations
 
-1. Validate source row count, distinct/missing order IDs, and status values.
-2. Present status counts and share of the all-orders denominator.
-3. Report canceled count, denominator, cancellation rate, and the exact status
-   rule.
-4. Optionally break the cancellation rate down by purchase period or other
-   approved segments, retaining the same all-orders denominator within each
-   segment.
-5. Summarize anomalies, exclusions, and limitations; do not infer causes from
-   descriptive status rates.
-
-## 5. Data gaps and validation before sign-off
-
-- Confirm whether the loaded clean view has removed duplicate or blank IDs;
-  document exclusions if present.
+- Raw-file checks found 99,441 rows, 99,441 distinct nonmissing order IDs,
+  and eight distinct source statuses. The SQL uses `orders_clean`; confirm it
+  matches the checked-in source snapshot before publishing a database result.
+- State comparisons are descriptive and include denominator counts. Small
+  state samples can produce volatile rates.
+- The data does not contain cancellation reasons in this analysis; status
+  counts cannot establish why orders were canceled.
 - Inspect the six canceled orders with delivery timestamps and the 609
-  `unavailable` orders separately.
-- Confirm that reporting uses `canceled` exactly (one `l` in the source value)
-  and does not silently remap status categories.
-- Add final SQL execution date, database row counts, validated rate, and any
-  segment results here.
+  `unavailable` orders separately. Do not reclassify either group based on
+  timestamp anomalies.

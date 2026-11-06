@@ -1,0 +1,13 @@
+record_type,delivery_group,eligible_delivered_orders,rated_orders,orders_without_valid_rating,rated_order_coverage_pct,valid_review_records,mean_order_level_review_score,review_score,distinct_orders_with_score,pct_valid_review_records
+group_summary,delayed,6534,6381,153,97.66,6409,2.2718,,,
+group_summary,on_time,89936,89443,493,99.45,89944,4.2906,,,
+score_distribution,delayed,6534,6381,153,97.66,3444,,1,3433,53.74
+score_distribution,delayed,6534,6381,153,97.66,556,,2,554,8.68
+score_distribution,delayed,6534,6381,153,97.66,697,,3,697,10.88
+score_distribution,delayed,6534,6381,153,97.66,652,,4,651,10.17
+score_distribution,delayed,6534,6381,153,97.66,1060,,5,1059,16.54
+score_distribution,on_time,89936,89443,493,99.45,5961,,1,5947,6.63
+score_distribution,on_time,89936,89443,493,99.45,2385,,2,2384,2.65
+score_distribution,on_time,89936,89443,493,99.45,7264,,3,7245,8.08
+score_distribution,on_time,89936,89443,493,99.45,18335,,4,18292,20.38
+score_distribution,on_time,89936,89443,493,99.45,55999,,5,55751,62.26
