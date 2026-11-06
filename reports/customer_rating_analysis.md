@@ -27,15 +27,20 @@
 
 ## 3. Comparison population and classification
 
-- Include only orders with `order_status = 'delivered'`, both actual and
-  estimated delivery dates present, and at least one linked valid review
-  score.
+- The **eligible delivery population** includes every order with
+  `order_status = 'delivered'` and both actual and estimated delivery dates
+  present. Keep orders without a valid rating in this population and report
+  them as unrated.
+- The **rated subset** includes eligible deliveries with at least one linked
+  valid review score (1–5). Calculate the order-level rating mean only from
+  this subset, averaging multiple valid reviews per order first.
 - Classify using **calendar dates**: delayed when
   `DATE(order_delivered_customer_date) > DATE(order_estimated_delivery_date)`;
   otherwise on time. Same-day delivery is on time regardless of timestamp
   time-of-day.
 - Exclude canceled, unavailable, and other non-delivered statuses; exclude
-  delivered orders with either date missing from the timeliness comparison.
+  delivered orders with either date missing from both the timeliness and
+  rating comparison.
 - Report eligible delivered orders, rated orders, and missing-rating orders
   for each group so the rating denominator and coverage are explicit.
 
@@ -73,9 +78,10 @@
 
 ## 5. Reporting method and limitations
 
-- The comparison includes only delivered orders with both dates and a linked
-  valid score (1–5); all eligible deliveries are retained in group-size
-  counts, including those without a valid score.
+- Delivery-group eligibility includes all delivered orders with both dates.
+  Rating means use only the subset with linked valid scores (1–5); eligible
+  orders without a valid score remain in the group-size denominator and are
+  counted as unrated.
 - Calendar-day classification is intentional and matches the project KPI
   definition. A delivery later in the day than an estimate on the same
   calendar date is classified as on time.
