@@ -4,11 +4,11 @@
 This Power BI dashboard analyzes Olist e-commerce order and delivery performance. It provides insights into order status, delivery delays, delivery duration, monthly trends, and regional order distribution.
 
 ## Dataset
-- Source: Olist E-Commerce Dataset
-- Main table: Orders
-- Customer table: olist_customers_dataset
-- Total orders: 99,441
-- Granularity: One row per order
+- **Source:** Olist E-Commerce Dataset
+- **Main table:** Orders
+- **Customer table:** `olist_customers_dataset`
+- **Total orders:** 99,441
+- **Granularity:** One row per order
 
 ## Dashboard Pages
 
@@ -44,9 +44,9 @@ This Power BI dashboard analyzes Olist e-commerce order and delivery performance
 - MySQL
 
 ## Files
-- `Olist_Logistics_Dashboard_Final.pbix` – Final Power BI dashboard
+- `Olist_Logistics_Dashboard.pbix` – Final Power BI dashboard
 - `screenshots/` – Dashboard screenshots
-- `DAX/measures_documentation.md` – DAX measure definitions
+- `dax/measures_documentation.md` – DAX measure definitions
 
 ## Author
 Meghana – Member 2 (Power BI Dashboard)
