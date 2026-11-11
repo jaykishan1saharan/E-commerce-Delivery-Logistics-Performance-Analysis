@@ -185,12 +185,23 @@ rank_biserial = (
 # 5. Chi-Square test
 # --------------------------------------------------
 
+# Group averaged review scores into predefined rating bands.
+rating_data = df.dropna(subset=["review_score"]).copy()
+
+rating_data["rating_band"] = pd.cut(
+    rating_data["review_score"],
+    bins=[0, 2, 4, 5],
+    labels=["Low (1-2)", "Moderate (>2-4)", "High (>4-5)"],
+    include_lowest=True,
+    right=True
+)
+
 contingency = pd.crosstab(
-    df["delivery_group"],
-    df["review_score"]
+    rating_data["delivery_group"],
+    rating_data["rating_band"]
 ).reindex(
     index=["On-time", "Late"],
-    columns=[1, 2, 3, 4, 5],
+    columns=["Low (1-2)", "Moderate (>2-4)", "High (>4-5)"],
     fill_value=0
 )
 

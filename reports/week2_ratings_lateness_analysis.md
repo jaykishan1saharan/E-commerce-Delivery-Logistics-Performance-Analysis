@@ -13,8 +13,8 @@ with customer rating categories.
 - Unique order IDs: 96,470
 - Valid review scores: 95,824
 - Missing or invalid review scores: 646
-- On-time orders: 88,644
-- Late orders: 7,826
+- On-time orders: 89,936
+- Late orders: 6,534
 
 ## 3. Delay Buckets
 
@@ -30,19 +30,19 @@ See `tables/delay_bucket_analysis.csv`.
 ## 4. Descriptive Rating Comparison
 
 delivery_group  order_count  mean_rating  median_rating  standard_deviation
-       On-time        88163     4.294114            5.0            1.147252
-          Late         7661     2.565070            2.0            1.658462
+       On-time        89443     4.290589            5.0            1.147940
+          Late         6381     2.271823            1.0            1.571058
 
 ## 5. Mann–Whitney U Test
 
 - Null hypothesis: On-time and late deliveries have the same
   review-score distributions.
 - Alternative hypothesis: Their review-score distributions differ.
-- On-time sample size: 88,163
-- Late sample size: 7,661
-- U statistic: 524709892.5000
+- On-time sample size: 89,443
+- Late sample size: 6,381
+- U statistic: 467426830.5000
 - p-value: <0.001
-- Rank-biserial correlation: 0.553737
+- Rank-biserial correlation: 0.637980
 - Significance level: 0.05
 
 **Interpretation:** Statistically significant difference detected.
@@ -52,19 +52,19 @@ delivery_group  order_count  mean_rating  median_rating  standard_deviation
 - Null hypothesis: Delivery timeliness and review-score category
   are independent.
 - Alternative hypothesis: They are associated.
-- Chi-square statistic: 14221.1053
-- Degrees of freedom: 4
+- Chi-square statistic: 15384.1969
+- Degrees of freedom: 2
 - p-value: <0.001
-- Cramer's V: 0.385238
+- Cramer's V: 0.400682
 
 **Interpretation:** Statistically significant association detected.
-- Minimum expected cell frequency: 233.53
+- Minimum expected cell frequency: 814.81
 
 See `tables/delivery_status_rating_contingency.csv`.
 
 ## 7. Data Quality Notes
 
-- Delay-sign versus timeliness-flag discrepancies: 6
+- Delay-sign versus timeliness-flag discrepancies: 0
 - The existing `is_on_time` flag was used for group assignment.
 - Missing review scores were excluded from statistical tests.
 - Original source data was not modified.
