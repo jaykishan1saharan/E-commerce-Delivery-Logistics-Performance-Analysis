@@ -1,0 +1,3 @@
+test,statistic,p_value,p_value_display,degrees_of_freedom,effect_size,effect_size_name,sample_size
+Mann-Whitney U,524709892.5,0.0,<0.001,,0.5537367053395654,Rank-biserial correlation,95824
+Chi-Square,14221.105309899267,0.0,<0.001,4.0,0.3852383626677307,Cramer's V,95824
